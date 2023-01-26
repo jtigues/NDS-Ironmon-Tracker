@@ -518,6 +518,22 @@ local function MainScreenUIInitializer(ui, gameInfo)
             Component(ui.frames.pokemonImageTypeFrame, Box({x = 0, y = -8}, {width = 0, height = 14}, nil, nil)),
             ImageField("", {x = 1, y = 0}, {width = 30, height = 12})
         )
+		ui.controls.brows1 =
+			ImageLabel(
+			Component(ui.frames.pokemonImageTypeFrame, Box({x = 0, y = -59}, {width = 30, height = 30}, nil, nil)),
+			ImageField("", {x = 0, y = -59}, nil),
+			ui.browsVisible
+		)
+		ui.controls.brows2 = ImageLabel(
+			Component(ui.frames.pokemonImageTypeFrame, Box({x = 0, y = -89}, {width = 30, height = 30}, nil, nil)),
+			ImageField("", {x = 0, y = -59}, nil),
+			ui.browsVisible
+		)
+		ui.controls.brows3 = ImageLabel(
+			Component(ui.frames.pokemonImageTypeFrame, Box({x = 0, y = -119}, {width = 30, height = 30}, nil, nil)),
+			ImageField("", {x = 0, y = -59}, nil),
+			ui.browsVisible
+		)
         ui.controls.pokemonNameLabel =
             TextLabel(
             Component(ui.frames.pokemonNameGearFrame, Box({x = 0, y = 0}, {width = 56, height = 10}, nil, nil)),

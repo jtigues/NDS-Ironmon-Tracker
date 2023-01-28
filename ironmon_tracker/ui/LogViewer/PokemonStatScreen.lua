@@ -73,6 +73,10 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
         MiscUtils.sortPokemonIDsByName(sortedPokemonIDs)
     end
 
+    function self.updateIDs(newIDs)
+        sortedPokemonIDs = newIDs
+    end
+
     function self.initialize(newLogInfo)
         logInfo = newLogInfo
         setUpPokemonIDs()
@@ -259,6 +263,7 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
     local function onMoveClick()
         viewingMoves = not viewingMoves
         local currentID = sortedPokemonIDs[currentIndex]
+        lastViewedItems = {}
         local items = logPokemon[currentID].moves
         local readingFunction = readScrollMovesIntoUI
         if not viewingMoves then
@@ -763,6 +768,7 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
     end
 
     function self.loadPokemonID(id)
+        lastViewedItems = {}
         for index, compare in pairs(sortedPokemonIDs) do
             if compare == id then
                 currentIndex = index

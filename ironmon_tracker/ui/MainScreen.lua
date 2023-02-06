@@ -686,62 +686,60 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
 		[647]={direction=0, brows={{x=-6,y=2,file="Brows30Right"},}},
 		[648]={direction=0, brows={{x=0,y=4,file="Brows25Left"},{x=-2,y=2,file="Brows25Right"},}},
 		[649]={direction=0, brows={{x=-4,y=4,file="Brows30Right"},}},
-		[650]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[651]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[652]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[653]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[654]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[655]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[656]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[657]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[658]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[659]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[660]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[661]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[662]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[663]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[664]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[665]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[666]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[667]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
-		[668]={direction=0, brows={{x=-11,y=-3,file="Brows30Right"},}},
-		[669]={direction=0, brows={{x=6,y=1,file="Brows20"},}},
-		[670]={direction=0, brows={{x=6,y=0,file="Brows20"},}},
-		[671]={direction=0, brows={{x=7,y=2,file="Brows25Left"},{x=7,y=5,file="Brows25Right"},}},
-		[672]={direction=0, brows={{x=5,y=4,file="Brows25"},}},
-		[673]={direction=0, brows={{x=3,y=6,file="Brows25"},}},
-		[674]={direction=0, brows={{x=6,y=3,file="Brows25"},}},
-		[675]={direction=0, brows={{x=-1,y=-1,file="Brows30"},}},
-		[676]={direction=0, brows={{x=5,y=5,file="Brows25Right"},}},
-		[677]={direction=0, brows={{x=5,y=5,file="Brows25Right"},}},
-		[678]={direction=0, brows={{x=5,y=5,file="Brows25Right"},}},
-		[679]={direction=0, brows={{x=-5,y=7,file="Brows25Right"},}},
-		[680]={direction=0, brows={{x=-2,y=5,file="Brows25Right"},}},
-		[681]={direction=0, brows={{x=-7,y=9,file="Brows25Right"},}},
-		[682]={direction=0, brows={{x=1,y=6,file="Brows25"},}},
-		[683]={direction=0, brows={{x=5,y=6,file="Brows15Left"},{x=2,y=3,file="Brows25Right"},{x=6,y=3,file="Unibrow20"},}},
-		[684]={direction=0, brows={{x=-3,y=5,file="Brows25Right"},}},
-		[685]={direction=0, brows={{x=1,y=-3,file="Brows25"},}},
-		[686]={direction=0, brows={{x=1,y=3,file="Brows25Right"},}},
-		[687]={direction=0, brows={{x=-5,y=7,file="Brows25Right"},}},
-		[688]={direction=0, brows={{x=-8,y=7,file="Brows25Right"},}},
-		[689]={direction=0, brows={{x=4,y=5,file="Brows20"},}},
-		[690]={direction=0, brows={{x=-1,y=8,file="Brows25"},}},
-		[691]={direction=0, brows={{x=4,y=1,file="Brows25"},}},
-		[692]={direction=0, brows={{x=3,y=-4,file="Brows25"},}},
-		[693]={direction=0, brows={{x=5,y=-1,file="Brows25"},}},
-		[694]={direction=0, brows={{x=2,y=5,file="Brows25"},}},
-		[695]={direction=0, brows={{x=4,y=4,file="Brows25Right"},{x=5,y=1,file="Brows25Left"},}},
-		[696]={direction=0, brows={{x=-2,y=8,file="Brows25Right"},}},
-		[697]={direction=0, brows={{x=-2,y=8,file="Brows25Right"},}},
-		[698]={direction=0, brows={{x=-2,y=8,file="Brows25Right"},}},
-		[699]={direction=0, brows={{x=-2,y=3,file="Brows25Right"},}},
-		[700]={direction=0, brows={{x=-8,y=4,file="Brows25Right"},}},
-		[701]={direction=0, brows={{x=-3,y=0,file="Brows25Right"},}},
-		[702]={direction=0, brows={{x=-9,y=4,file="Brows25Right"},}},
-		[703]={direction=0, brows={{x=-2,y=1,file="Brows30Right"},}},
-		[704]={direction=0, brows={{x=12,y=3,file="Brows15"},}},
-		[705]={direction=0, brows={{x=12,y=4,file="Brows15"},}},
+		["Arceus-1"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-2"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-3"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-4"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-5"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-6"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-7"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-8"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-9"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-10"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-11"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-12"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-13"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-14"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-15"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Arceus-16"]={direction=0, brows={{x=-6,y=7,file="Brows25Right"},}},
+		["Basculin R-1"]={direction=0, brows={{x=-11,y=-3,file="Brows30Right"},}},
+		["Burmy P-1"]={direction=0, brows={{x=6,y=1,file="Brows20"},}},
+		["Burmy P-2"]={direction=0, brows={{x=6,y=0,file="Brows20"},}},
+		["Castform-1"]={direction=0, brows={{x=7,y=2,file="Brows25Left"},{x=7,y=5,file="Brows25Right"},}},
+		["Castform-2"]={direction=0, brows={{x=5,y=4,file="Brows25"},}},
+		["Castform-3"]={direction=0, brows={{x=3,y=6,file="Brows25"},}},
+		["Cherrim O-1"]={direction=0, brows={{x=6,y=3,file="Brows25"},}},
+		["Darmanitan-1"]={direction=0, brows={{x=-1,y=-1,file="Brows30"},}},
+		["Deerling-1"]={direction=0, brows={{x=5,y=5,file="Brows25Right"},}},
+		["Deerling-2"]={direction=0, brows={{x=5,y=5,file="Brows25Right"},}},
+		["Deerling-3"]={direction=0, brows={{x=5,y=5,file="Brows25Right"},}},
+		["Deoxys-1"]={direction=0, brows={{x=-5,y=7,file="Brows25Right"},}},
+		["Deoxys-2"]={direction=0, brows={{x=-2,y=5,file="Brows25Right"},}},
+		["Deoxys-3"]={direction=0, brows={{x=-7,y=9,file="Brows25Right"},}},
+		["Frillish M-1"]={direction=0, brows={{x=1,y=6,file="Brows25"},}},
+		["Gastrodon W-1"]={direction=0, brows={{x=5,y=6,file="Brows15Left"},{x=2,y=3,file="Brows25Right"},{x=6,y=3,file="Unibrow20"},}},
+		["Giratina A-1"]={direction=0, brows={{x=-3,y=5,file="Brows25Right"},}},
+		["Jellicent M-1"]={direction=0, brows={{x=1,y=-3,file="Brows25"},}},
+		["Keldeo-1"]={direction=0, brows={{x=1,y=3,file="Brows25Right"},}},
+		["Kyurem-1"]={direction=0, brows={{x=-5,y=7,file="Brows25Right"},}},
+		["Kyurem-2"]={direction=0, brows={{x=-8,y=7,file="Brows25Right"},}},
+		["Landorus-1"]={direction=0, brows={{x=4,y=5,file="Brows20"},}},
+		["Meloetta A-1"]={direction=0, brows={{x=-1,y=8,file="Brows25"},}},
+		["Rotom-1"]={direction=0, brows={{x=4,y=1,file="Brows25"},}},
+		["Rotom-2"]={direction=0, brows={{x=3,y=-4,file="Brows25"},}},
+		["Rotom-3"]={direction=0, brows={{x=5,y=-1,file="Brows25"},}},
+		["Rotom-4"]={direction=0, brows={{x=2,y=5,file="Brows25"},}},
+		["Rotom-5"]={direction=0, brows={{x=4,y=4,file="Brows25Right"},{x=5,y=1,file="Brows25Left"},}},
+		["Sawsbuck-1"]={direction=0, brows={{x=-2,y=8,file="Brows25Right"},}},
+		["Sawsbuck-2"]={direction=0, brows={{x=-2,y=8,file="Brows25Right"},}},
+		["Sawsbuck-3"]={direction=0, brows={{x=-2,y=8,file="Brows25Right"},}},
+		["Shaymin L-1"]={direction=0, brows={{x=-2,y=3,file="Brows25Right"},}},
+		["Shellos W-1"]={direction=0, brows={{x=-8,y=4,file="Brows25Right"},}},
+		["Thundurus-1"]={direction=0, brows={{x=-3,y=0,file="Brows25Right"},}},
+		["Tornadus-1"]={direction=0, brows={{x=-9,y=4,file="Brows25Right"},}},
+		["Unfezant M-1"]={direction=0, brows={{x=-2,y=1,file="Brows30Right"},}},
+		["Wormadam P-1"]={direction=0, brows={{x=12,y=3,file="Brows15"},}},
+		["Wormadam P-2"]={direction=0, brows={{x=12,y=4,file="Brows15"},}},
     }
     local function toggleBrows()
 		ui.browsVisible = not ui.controls.brows1.isVisible()
@@ -965,10 +963,6 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         end
     end
 
-    function self.getInnerFramePosition()
-        return ui.frames.mainInnerFrame.getPosition()
-    end
-
     local function onHiddenPowerFrameCounter()
         frameCounters["hiddenPowerCounter"] = nil
         justChangedHiddenPower = false
@@ -993,8 +987,9 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
 
 	local function perPokemonBrows()
 		local imageID = currentPokemon.pokemonID
-        if currentPokemon.alternateFormID ~= nil then
-            imageID = currentPokemon.alternateFormID
+        local name, index
+        if currentPokemon.baseFormData ~= nil then
+            imageID = currentPokemon.baseFormData.baseFormName .. "-" .. currentPokemon.baseFormData.alternateFormIndex
         end
 		if browsOptions[imageID] ~= nil then return browsOptions[imageID] else return {direction=0, brows={x=0,y=0, file="Brows25"}} end
 	end
@@ -1291,12 +1286,6 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         ui.controls.abilityDetails.setText("Last level: " .. tracker.getLastLevelSeen(currentPokemon.pokemonID))
         ui.controls.healsLabel.setText("")
         ui.controls.statusItemsLabel.setText("")
-        local bookmarked = tracker.isMarked(currentPokemon.pokemonID)
-        local iconName = "BOOKMARK_FILLED"
-        if not bookmarked then
-            iconName = "BOOKMARK_EMPTY"
-        end
-        ui.controls.bookmarkIcon.setIconName(iconName)
         readTrackedEncountersIntoLabel()
     end
 
@@ -1353,8 +1342,6 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         ui.frames.survivalHealFrame.setVisibility(false)
         ui.frames.accEvaFrame.setVisibility(false)
         ui.frames.hiddenPowerArrowsFrame.setVisibility(false)
-        ui.controls.noteLabels[1].setVisibility(false)
-        ui.controls.noteLabels[2].setVisibility(false)
 
         eventListeners.loadStatOverview.setOnClickParams(currentPokemon.pokemonID)
 
@@ -1495,34 +1482,6 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         else
             heldItemDescription = heldItemDescription .. " Yum!"
         end
-        return heldItemDescription
-    end
-
-    local function setUpEvo(isEnemy)
-        extraThingsToDraw.friendshipBar = nil
-        local evo = currentPokemon.evolution
-        --male/female difference evos
-        if type(evo) == "table" then
-            if not currentPokemon.isFemale then
-                currentPokemon.isFemale = 0
-            end
-            evo = evo[currentPokemon.isFemale + 1]
-        end
-        if evo == PokemonData.EVOLUTION_TYPES.FRIEND and not isEnemy and not inPastRunView then
-            local position = ui.controls.pokemonLevelAndEvo.getPosition()
-            local base = currentPokemon.baseFriendship or 0
-            local progress = (currentPokemon.friendship - base) / (220 - base)
-
-            extraThingsToDraw.friendshipBar = {
-                ["progress"] = progress,
-                x = position.x + 19 + (5 * #(tostring(currentPokemon.level))),
-                y = position.y + 3
-            }
-            if progress >= 1 then
-                evo = "READY"
-            end
-        end
-        ui.controls.pokemonLevelAndEvo.setText("Lv. " .. currentPokemon.level .. " (" .. evo .. ")")
     end
 
     local function setUpMainPokemonInfo(isEnemy)
@@ -1548,9 +1507,20 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
             ui.controls.pokemonImageLabel,
             currentIconSet.IMAGE_OFFSET
         )
-        setUpEvo(isEnemy)
         local pokemonHoverParams = hoverListeners.pokemonHoverListener.getOnHoverParams()
         pokemonHoverParams.pokemon = currentPokemon
+        local evo = currentPokemon.evolution
+        --male/female difference evos
+        if type(evo) == "table" then
+            if not currentPokemon.isFemale then
+                currentPokemon.isFemale = 0
+            end
+            evo = evo[currentPokemon.isFemale + 1]
+        end
+        if evo == PokemonData.EVOLUTION_TYPES.FRIEND and not isEnemy and currentPokemon.friendship >= 220 then
+            evo = "SOON"
+        end
+        ui.controls.pokemonLevelAndEvo.setText("Lv. " .. currentPokemon.level .. " (" .. evo .. ")")
         ui.controls.pokemonHP.setText("HP: " .. currentPokemon.curHP .. "/" .. currentPokemon.stats.HP)
         local abilityName = AbilityData.ABILITIES[currentPokemon.ability + 1].name
         if settings.appearance.BLIND_MODE then
@@ -1573,7 +1543,7 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         local itemHoverParams = hoverListeners.heldItemHoverListener.getOnHoverParams()
         local heldItemDescription = heldItemInfo.description
         if ItemData.NATURE_SPECIFIC_BERRIES[heldItemInfo.name] ~= nil then
-            heldItemDescription = readNatureSpecificBerry(heldItemInfo.name, heldItemDescription)
+            readNatureSpecificBerry(heldItemInfo.name, heldItemDescription)
         end
         itemHoverParams.text = heldItemDescription
     end
@@ -1709,23 +1679,6 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         end
     end
 
-    local function onBookmarkClick()
-        local filled = string.match(ui.controls.bookmarkIcon.getIconName(), "FILLED")
-        local newIconName = "BOOKMARK_FILLED"
-        local newIconName = "BOOKMARK_FILLED"
-        if filled then
-            newIconName = "BOOKMARK_EMPTY"
-        end
-        ui.controls.bookmarkIcon.setIconName(newIconName)
-        filled = not filled
-        if filled then
-            tracker.markID(currentPokemon.pokemonID)
-        else
-            tracker.unmarkID(currentPokemon.pokemonID)
-        end
-        program.drawCurrentScreens()
-    end
-
     local function initStatListeners()
         for _, stat in pairs(stats) do
             local predictionLabel = stat .. "StatPrediction"
@@ -1801,7 +1754,6 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
             eventListeners,
             MouseClickEventListener(ui.controls.rightHiddenPowerLabel, onChangeHiddenPower, "forward")
         )
-        table.insert(eventListeners, MouseClickEventListener(ui.controls.bookmarkIcon, onBookmarkClick))
         eventListeners.browsListener = MouseClickEventListener(ui.controls.pokemonImageLabel, toggleBrows, nil)
     end
 

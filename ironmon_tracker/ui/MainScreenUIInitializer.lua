@@ -661,22 +661,6 @@ local function MainScreenUIInitializer(ui, gameInfo)
             Layout(Graphics.ALIGNMENT_TYPE.HORIZONTAL, 0, {x = 0, y = 0}),
             ui.frames.pokemonInfoFrame
         )
-
-        ui.frames.bookmarkFrame =
-            Frame(
-            Box(
-                {
-                    x = 0,
-                    y = 0
-                },
-                {
-                    width = 0,
-                    height = 0
-                }
-            ),
-            Layout(Graphics.ALIGNMENT_TYPE.HORIZONTAL, 0, {x = 54, y = 0}),
-            ui.frames.infoBottomFrame
-        )
         ui.controls.lockIcon =
             Icon(
             Component(
@@ -692,7 +676,6 @@ local function MainScreenUIInitializer(ui, gameInfo)
             "UNLOCKED",
             {x = 2, y = 0}
         )
-
         ui.frames.encounterDataFrame =
             Frame(
             Box(
@@ -707,13 +690,6 @@ local function MainScreenUIInitializer(ui, gameInfo)
             ),
             Layout(Graphics.ALIGNMENT_TYPE.HORIZONTAL, 0, {x = 0, y = 0}),
             ui.frames.infoBottomFrame
-        )
-
-        ui.controls.bookmarkIcon =
-            Icon(
-            Component(ui.frames.bookmarkFrame, Box({x = 0, y = 0}, {width = 8, height = 8}, nil, nil)),
-            "BOOKMARK_EMPTY",
-            {x = 2, y = 1}
         )
         ui.controls.locationIcon =
             Icon(
@@ -1161,7 +1137,7 @@ local function MainScreenUIInitializer(ui, gameInfo)
             Icon(
             Component(ui.frames.pastRunLocationAndNote, Box({x = 0, y = 0}, {width = 7, height = 0}, nil, nil)),
             "LOCATION_ICON_SMALL_FILLED",
-            {x = 2, y = 2}, false
+            {x = 2, y = 2}
         )
         ui.controls.noteLabels[2] =
             TextLabel(

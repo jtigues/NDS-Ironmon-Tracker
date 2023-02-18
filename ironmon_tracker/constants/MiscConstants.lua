@@ -1,14 +1,14 @@
 MiscConstants = {}
 
-MiscConstants.TRACKER_VERSION = "5.1.5"
+MiscConstants.TRACKER_VERSION = "5.1.10"
 
 MiscConstants.BIZHAWK_VERSION = client.getversion()
 
 MiscConstants.UPDATE_NOTES = {
-    '-- For friendship evolutions, the letters of "FRIEND" will now slowly light up green for a rough progress approximation.',
-    '-- N is now the "past the lab" marker for Black/White.',
-    '-- Fixed the second slot Pok'..Chars.accentedE..'mon glitching in and out in HeartGold and SoulSilver.',
-    '-- Various other bug fixes.'
+    '-- Survival\'s heal icon has been changed.',
+    '-- Fixed a bug where scrolling moves in the Log Viewer would not work with the mouse sometimes.',
+    '-- Fixed a bug with badges appearing incorrectly in the Past Run viewer.',
+    '-- Fixed a bug where hovering the enemy location icon to see encounters could crash the tracker.'
 }
 
 MiscConstants.DEFAULT_SETTINGS = {
@@ -76,6 +76,9 @@ MiscConstants.DEFAULT_SETTINGS = {
     automaticUpdates = {
         LAST_DAY_CHECKED = "",
         UPDATE_WAS_DONE = true
+    },
+    trackedInfo = {
+        FAINT_DETECTION = PlaythroughConstants.FAINT_DETECTIONS.ON_FIRST_SLOT_FAINT
     }
 }
 

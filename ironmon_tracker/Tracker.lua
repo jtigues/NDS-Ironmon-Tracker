@@ -2,8 +2,8 @@ local function Tracker()
 	local self = {}
 
 	local currentAreaName = ""
-	local encounterData = {}
 	local trackedData = {
+		encounterData = {},
 		runOver = false,
 		progress = PlaythroughConstants.PROGRESS.NOWHERE,
 		firstPokemon = nil,
@@ -14,6 +14,9 @@ local function Tracker()
 		currentHiddenPowerIndex = 1,
 		pokecenterCount = 10
 	}
+	local sessionStartTime = os.time()
+	local startSeconds = 0
+	local totalSeconds = 0
 
 	function self.setRunOver()
 		trackedData.runOver = true
@@ -28,14 +31,16 @@ local function Tracker()
 	end
 
 	function self.isMarked(id)
-		if trackedData.bookmarkedIDs[id] == nil then 
+		if trackedData.bookmarkedIDs[id] == nil then
 			return false
 		end
 		return trackedData.bookmarkedIDs[id]
 	end
 
 	function self.getMarkedIDs()
-		if next(trackedData.bookmarkedIDs) == nil then return {} end
+		if next(trackedData.bookmarkedIDs) == nil then
+			return {}
+		end
 		local ids = {}
 		for id, _ in pairs(trackedData.bookmarkedIDs) do
 			table.insert(ids, id)
@@ -44,7 +49,6 @@ local function Tracker()
 		return ids
 	end
 
-	
 	function self.hasRunEnded()
 		return trackedData.runOver
 	end
@@ -60,6 +64,26 @@ local function Tracker()
 			return
 		end
 		return trackedData.firstPokemon.pokemonID
+	end
+
+	function self.loadTotalPlaytime(gameName)
+		local playtimeFile = "savedData/" .. gameName .. ".pt"
+		local seconds = MiscUtils.readStringFromFile(playtimeFile)
+		if seconds ~= nil then
+			totalSeconds = seconds
+			startSeconds = tonumber(seconds, 10)
+		end
+	end
+
+	function self.getTotalHoursPlayed()
+		local hours = totalSeconds / 3600
+		return (string.format("%.1f hours", hours))
+	end
+
+	function self.updatePlaytime(gameName)
+		local playtimeFile = "savedData/" .. gameName .. ".pt"
+		totalSeconds = startSeconds + (os.time() - sessionStartTime)
+		MiscUtils.writeStringToFile(playtimeFile, tostring(totalSeconds))
 	end
 
 	function self.loadData(gameName)
@@ -80,26 +104,23 @@ local function Tracker()
 			end
 			trackedData = savedData
 		end
-		
 	end
 
 	local function createNewPokemonEntry(pokemonID)
-		if pokemonID < 800 then
-			trackedData.trackedPokemon[0] = nil
-			trackedData.trackedPokemon[pokemonID] = {
-				moves = {},
-				statPredictions = nil,
-				abilities = {},
-				note = "",
-				amountSeen = 0,
-				lastLevelSeen = "---",
-				currentLevel = "---",
-				baseForm = nil
-			}
-		end
+		trackedData.trackedPokemon[pokemonID] = {
+			moves = {},
+			statPredictions = nil,
+			abilities = {},
+			note = "",
+			amountSeen = 0,
+			lastLevelSeen = "---",
+			currentLevel = "---",
+			baseForm = nil
+		}
 	end
 
 	function self.updateEncounterData(pokemonID, level)
+		local encounterData = trackedData.encounterData
 		if not encounterData[currentAreaName] then
 			encounterData[currentAreaName] = {
 				areaName = currentAreaName,
@@ -129,7 +150,7 @@ local function Tracker()
 	end
 
 	function self.getEncounterData()
-		return encounterData[currentAreaName]
+		return trackedData.encounterData[currentAreaName]
 	end
 
 	function self.updateCurrentAreaName(newAreaName)
@@ -143,6 +164,7 @@ local function Tracker()
 	end
 
 	local function updateAmountSeen(pokemonID)
+		checkIfPokemonUntracked(pokemonID)
 		local data = trackedData.trackedPokemon[pokemonID]
 		data.amountSeen = data.amountSeen + 1
 	end
@@ -163,7 +185,7 @@ local function Tracker()
 		local ids = {}
 		local pokemon = trackedData.trackedPokemon
 		for id, _ in pairs(pokemon) do
-			if not PokemonData.POKEMON[id+1] then
+			if not PokemonData.POKEMON[id + 1] then
 				pokemon[id] = nil
 			else
 				table.insert(ids, id)
@@ -268,14 +290,17 @@ local function Tracker()
 	end
 
 	function self.getLastLevelSeen(pokemonID)
+		checkIfPokemonUntracked(pokemonID)
 		return trackedData.trackedPokemon[pokemonID].lastLevelSeen
 	end
 
 	function self.getAmountSeen(pokemonID)
+		checkIfPokemonUntracked(pokemonID)
 		return trackedData.trackedPokemon[pokemonID].amountSeen
 	end
 
 	local function createNewMoveEntry(pokemonID, moveID, level)
+		checkIfPokemonUntracked(pokemonID)
 		local pokemonData = trackedData.trackedPokemon[pokemonID]
 		pokemonData.moves = {}
 		pokemonData.moves[1] = {
@@ -303,6 +328,7 @@ local function Tracker()
 	end
 
 	function self.trackMove(pokemonID, moveID, level)
+		checkIfPokemonUntracked(pokemonID)
 		local pokemonData = trackedData.trackedPokemon[pokemonID]
 		local currentMoves = pokemonData.moves
 		if next(currentMoves) == nil then
@@ -352,6 +378,7 @@ local function Tracker()
 	end
 
 	function self.setStatPredictions(pokemonID, newStats)
+		checkIfPokemonUntracked(pokemonID)
 		trackedData.trackedPokemon[pokemonID].statPredictions = newStats
 	end
 
@@ -372,17 +399,16 @@ local function Tracker()
 	end
 
 	function self.setNote(pokemonID, note)
+		checkIfPokemonUntracked(pokemonID)
 		if note ~= nil then
-			local charMax = 40
-			if string.len(note) > charMax then
-				print("Note truncated to " .. charMax .. " characters")
-			end
-			note = string.sub(note, 1, charMax)
-			trackedData.trackedPokemon[pokemonID].note = string.sub(note, 1, charMax)
+			trackedData.trackedPokemon[pokemonID].note = note
 		end
 	end
 
 	function self.getNote(pokemonID)
+		if trackedData.trackedPokemon[pokemonID] == nil then
+			return ""
+		end
 		local note = trackedData.trackedPokemon[pokemonID].note
 		if note ~= nil then
 			return note
@@ -408,6 +434,7 @@ local function Tracker()
 	end
 
 	function self.getAbilities(pokemonID)
+		checkIfPokemonUntracked(pokemonID)
 		if trackedData.abilities[pokemonID] == nil then
 			return {
 				1

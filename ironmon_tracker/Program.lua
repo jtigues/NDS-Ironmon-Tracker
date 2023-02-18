@@ -63,7 +63,8 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	local frameCounters
 	local trackerUpdater = TrackerUpdater(settings)
 	local seedLogger
-	
+	local previousBackgroundColor
+
 	local currentScreens = {}
 
 	function self.getGameInfo()
@@ -78,32 +79,44 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		INI.save("Settings.ini", settings)
 	end
 
+	local function checkIfNeedToInitialize(screen)
+		local blankInitialization = {
+			[self.UI_SCREENS.QUICK_LOAD_SCREEN] = true,
+			[self.UI_SCREENS.UPDATE_NOTES_SCREEN] = true
+		}
+		local seedLoggerInitialization = {
+			[self.UI_SCREENS.STATISTICS_SCREEN] = true,
+			[self.UI_SCREENS.PAST_RUNS_SCREEN] = true
+		}
+		if blankInitialization[screen] then
+			self.UI_SCREEN_OBJECTS[screen].initialize()
+		elseif seedLoggerInitialization[screen] then
+			self.UI_SCREEN_OBJECTS[screen].initialize(seedLogger)
+		end
+	end
+
+	local function checkForTransparenBackgroundException(screen)
+		local needSolidBackground = {
+			[self.UI_SCREENS.STATISTICS_SCREEN] = true,
+			[self.UI_SCREENS.LOG_VIEWER_SCREEN] = true
+		}
+		DrawingUtils.setTransparentBackgroundOverride(needSolidBackground[screen])
+	end
+
 	function self.openScreen(screen)
 		self.setCurrentScreens({screen})
+		checkForTransparenBackgroundException(screen)
 		if screen == self.UI_SCREENS.MAIN_SCREEN and tracker.getFirstPokemonID() == nil and settings.appearance.RANDOM_BALL_PICKER then
-			self.setCurrentScreens{screen, self.UI_SCREENS.RANDOM_BALL_SCREEN}
+			self.setCurrentScreens {screen, self.UI_SCREENS.RANDOM_BALL_SCREEN}
+			currentScreens[self.UI_SCREENS.MAIN_SCREEN].setRandomBallPickerActive(true)
 			currentScreens[self.UI_SCREENS.MAIN_SCREEN].show()
 			local mainScreenPosition = currentScreens[self.UI_SCREENS.MAIN_SCREEN].getInnerFramePosition()
 			currentScreens[self.UI_SCREENS.RANDOM_BALL_SCREEN].initialize(mainScreenPosition)
-		elseif screen == self.UI_SCREENS.QUICK_LOAD_SCREEN then
-			self.UI_SCREEN_OBJECTS[self.UI_SCREENS.QUICK_LOAD_SCREEN].initialize()
+		else
+			self.UI_SCREEN_OBJECTS[self.UI_SCREENS.MAIN_SCREEN].setRandomBallPickerActive(false)
 		end
+		checkIfNeedToInitialize(screen)
 		self.drawCurrentScreens()
-	end
-
-	function self.openUpdateNotes()
-		self.UI_SCREEN_OBJECTS[self.UI_SCREENS.UPDATE_NOTES_SCREEN].initialize()
-		self.openScreen(self.UI_SCREENS.UPDATE_NOTES_SCREEN)
-	end
-
-	function self.openPastRunsScreen()
-		inPastRunView = true
-		self.UI_SCREEN_OBJECTS[self.UI_SCREENS.PAST_RUNS_SCREEN].initialize(seedLogger)
-	end
-
-	function self.openStatisticsScreen()
-		self.UI_SCREEN_OBJECTS[self.UI_SCREENS.STATISTICS_SCREEN].initialize(seedLogger)
-		self.openScreen(self.UI_SCREENS.STATISTICS_SCREEN)
 	end
 
 	self.UI_SCREENS = {
@@ -311,11 +324,13 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 					}
 					local formStartIndex = formTable.index
 					local alternateFormID = formStartIndex + (alternateFormindex - 2)
-					pokemon.alternateFormID = alternateFormID
-					pokemon.name = PokemonData.POKEMON[alternateFormID + 1].name
-					if not formTable.cosmetic then
-						pokemon.pokemonID = alternateFormID
-						tracker.logPokemonAsAlternateForm(pokemon.pokemonID, pokemon.baseForm, pokemon.alternateForm)
+					if PokemonData.POKEMON[alternateFormID + 1] then
+						pokemon.alternateFormID = alternateFormID
+						pokemon.name = PokemonData.POKEMON[alternateFormID + 1].name
+						if not formTable.cosmetic then
+							pokemon.pokemonID = alternateFormID
+							tracker.logPokemonAsAlternateForm(pokemon.pokemonID, pokemon.baseForm, pokemon.alternateForm)
+						end
 					end
 				end
 			end
@@ -452,6 +467,7 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		local inThemeView = currentScreens[self.UI_SCREENS.COLOR_SCHEME_SCREEN]
 		if beforeFirstPokemon and tracker.getFirstPokemonID() ~= nil then
 			self.setCurrentScreens({self.UI_SCREENS.MAIN_SCREEN})
+			self.UI_SCREEN_OBJECTS[self.UI_SCREENS.MAIN_SCREEN].setRandomBallPickerActive(false)
 		end
 		if beforeFirstPokemon or afterFirstPokemon or inThemeView then
 			self.drawCurrentScreens()
@@ -689,7 +705,8 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 			end,
 			nil,
 			true
-		)
+		),
+		playtimeUpdate = FrameCounter(300, tracker.updatePlaytime, gameInfo.NAME, true)
 	}
 
 	function self.pauseEventListeners()
@@ -755,8 +772,8 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 
 	function self.onProgramExit()
 		tracker.save(gameInfo.NAME)
+		tracker.updatePlaytime(gameInfo.NAME)
 		client.saveram()
-		DrawingUtils.clearGUI()
 		forms.destroyall()
 	end
 
@@ -765,7 +782,9 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	end
 
 	function self.checkForUpdateBeforeLoading()
-		if currentScreens[self.UI_SCREENS.UPDATE_NOTES_SCREEN] then return end
+		if currentScreens[self.UI_SCREENS.UPDATE_NOTES_SCREEN] then
+			return
+		end
 		if not trackerUpdater.alreadyCheckedForTheDay() then
 			if trackerUpdater.updateExists() then
 				self.setCurrentScreens({self.UI_SCREENS.UPDATER_SCREEN})
@@ -777,10 +796,12 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	end
 
 	local function checkIfUpdatePerformed()
-		if currentScreens[self.UI_SCREENS.UPDATER_SCREEN] then return end
+		if currentScreens[self.UI_SCREENS.UPDATER_SCREEN] then
+			return
+		end
 		if settings.automaticUpdates.UPDATE_WAS_DONE == true then
 			settings.automaticUpdates.UPDATE_WAS_DONE = false
-			self.openUpdateNotes()
+			self.openScreen(self.UI_SCREENS.UPDATE_NOTES_SCREEN)
 			self.saveSettings()
 		else
 			self.openScreen(self.UI_SCREENS.MAIN_SCREEN)
@@ -788,7 +809,7 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	end
 
 	pokemonDataReader = PokemonDataReader(self)
-	battleHandler = BattleHandler(gameInfo, memoryAddresses, pokemonDataReader, tracker, self)
+	battleHandler = BattleHandler(gameInfo, memoryAddresses, pokemonDataReader, tracker, self, settings)
 	seedLogger = SeedLogger(self, gameInfo.NAME)
 	playerPokemon = pokemonDataReader.getDefaultPokemon()
 	setPokemonForMainScreen()
@@ -802,14 +823,13 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		if logInfo ~= nil then
 			local firstPokemonID = tracker.getFirstPokemonID()
 			logInfo.setStarterNumberFromPlayerPokemonID(firstPokemonID)
-			self.setCurrentScreens({self.UI_SCREENS.LOG_VIEWER_SCREEN})
+			self.openScreen(self.UI_SCREENS.LOG_VIEWER_SCREEN)
 			self.UI_SCREEN_OBJECTS[self.UI_SCREENS.LOG_VIEWER_SCREEN].initialize(logInfo)
 			if playerPokemon ~= nil and playerPokemon.pokemonID ~= 0 then
 				local logScreen = self.UI_SCREEN_OBJECTS[self.UI_SCREENS.LOG_VIEWER_SCREEN]
 				logScreen.addGoBackFunction(logScreen.goBackToOverview)
 				logScreen.loadPokemonStats(playerPokemon.pokemonID)
 			end
-			self.drawCurrentScreens()
 		end
 		client.SetSoundOn(soundOn)
 	end

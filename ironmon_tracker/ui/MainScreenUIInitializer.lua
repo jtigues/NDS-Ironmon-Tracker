@@ -176,7 +176,7 @@ local function MainScreenUIInitializer(ui, gameInfo)
                     y = 0
                 },
                 {
-                    width = constants.POKEMON_INFO_WIDTH - 26,
+                    width = constants.POKEMON_INFO_WIDTH,
                     height = constants.STAT_INFO_HEIGHT - constants.POKEMON_INFO_HEIGHT
                 }
             ),
@@ -1019,10 +1019,9 @@ local function MainScreenUIInitializer(ui, gameInfo)
             )
         )
         ui.controls.survivalHealsIcon =
-            Icon(
+            ImageLabel(
             Component(ui.frames.survivalHealFrame, Box({x = 0, y = 0}, {width = 8, height = 10}, nil, nil)),
-            "SURVIVAL_HEALS",
-            {x = 4, y = 1}
+            ImageField("ironmon_tracker/images/icons/heart.png", {x = 4, y = 1}, nil)
         )
         ui.frames.survivalHealAmountFrame =
             Frame(
@@ -1036,7 +1035,7 @@ local function MainScreenUIInitializer(ui, gameInfo)
                     height = 0
                 }
             ),
-            Layout(Graphics.ALIGNMENT_TYPE.HORIZONTAL, 1, {x = -3, y = 2}),
+            Layout(Graphics.ALIGNMENT_TYPE.HORIZONTAL, 1, {x = -2, y = 2}),
             ui.frames.survivalHealFrame
         )
         ui.controls.decreaseHealsIcon =
@@ -1047,7 +1046,7 @@ local function MainScreenUIInitializer(ui, gameInfo)
         )
         ui.controls.survivalHealAmountLabel =
             TextLabel(
-            Component(ui.frames.survivalHealAmountFrame, Box({x = 0, y = 0}, {width = 9, height = 8}, nil, nil)),
+            Component(ui.frames.survivalHealAmountFrame, Box({x = 0, y = 0}, {width = 8, height = 8}, nil, nil)),
             TextField(
                 "12",
                 {x = -2, y = -3},

@@ -15,6 +15,7 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
     local inTrackedView = false
     local inPastRunView = false
     local inLockedView = false
+    local randomBallPickerActive = false
     local defeatedLance = false
     local mainScreenUIInitializer
     local statCycleIndex = -1
@@ -1276,14 +1277,20 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         abilityHoverParams.text = ""
         itemHoverParams.text = ""
         local note = tracker.getNote(currentPokemon.pokemonID)
-        local lines = DrawingUtils.textToWrappedArray(note, 70)
+        local lines = DrawingUtils.textToWrappedArray(note, 80)
         ui.controls.mainNoteLabel.setText(lines[1])
         ui.controls.mainNoteLabel.setVisibility(#lines == 1)
+        hoverListeners.enemyNoteHoverListener.getOnHoverParams().text = ""
         for i = 1, 2, 1 do
             ui.controls.noteLabels[i].setVisibility(#lines > 1)
             if #lines > 1 and DrawingUtils.calculateWordPixelLength(lines[i]) <= 80 then
                 ui.controls.noteLabels[i].setText(lines[i])
             end
+        end
+        if #lines > 2 then
+            local text = ui.controls.noteLabels[2].getText()
+            ui.controls.noteLabels[2].setText(MiscUtils.trimWhitespace(text).."...")
+            hoverListeners.enemyNoteHoverListener.getOnHoverParams().text = note
         end
         ui.controls.heldItem.setText("Total seen: " .. tracker.getAmountSeen(currentPokemon.pokemonID))
         ui.controls.abilityDetails.setText("Last level: " .. tracker.getLastLevelSeen(currentPokemon.pokemonID))
@@ -1453,6 +1460,11 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
             pokecenters = " " .. pokecenters
         end
         ui.controls.survivalHealAmountLabel.setText(pokecenters)
+       local survivalLabelOffset = {x=-2,y=-3}
+       if tonumber(pokecenters) > 9 then
+        survivalLabelOffset.x = -3
+       end
+       ui.controls.survivalHealAmountLabel.setTextOffset(survivalLabelOffset)
         local showAccEva =
             settings.appearance.SHOW_ACCURACY_AND_EVASION and program.isInBattle() and not isEnemy and not inLockedView and
             not inPastRunView
@@ -1627,11 +1639,29 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         self.resetEventListeners()
     end
 
+    function self.setRandomBallPickerActive(newValue)
+        randomBallPickerActive = newValue
+    end
+
+    local function setUpBasedOnRandomBallPicker()
+        if randomBallPickerActive then
+            ui.controls.pokemonNameLabel.setText("")
+            ui.controls.pokemonLevelAndEvo.setText("")
+            ui.controls.pokemonHP.setText("")
+            ui.controls.heldItem.setText("")
+            ui.controls.abilityDetails.setText("")
+        end
+        ui.controls.pokemonImageLabel.setVisibility(not randomBallPickerActive)
+        ui.controls.pokemonType1.setVisibility(not randomBallPickerActive)
+        ui.controls.pokemonType2.setVisibility(not randomBallPickerActive)
+    end
+
     function self.show()
         self.updateBadgeLayout()
         readPokemonIntoUI()
+        setUpBasedOnRandomBallPicker()
         ui.frames.mainFrame.show()
-        if not program.isInBattle() or inPastRunView then
+        if not program.isInBattle() or inPastRunView or inTrackedView then
             extraThingsToDraw.moveEffectiveness = {}
             extraThingsToDraw.statStages = {}
         end
@@ -1725,6 +1755,20 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
             ui.controls.pokemonImageLabel,
             onPokemonImageHover,
             {pokemon = nil, mainFrame = ui.frames.mainFrame},
+            onHoverInfoEnd
+        )
+        hoverListeners.enemyNoteHoverListener =
+            HoverEventListener(
+            ui.frames.enemyNoteFrame,
+            onHoverInfo,
+            {
+                BGColorKey = "Top box background color",
+                BGColorFillKey = "Top box border color",
+                text = "",
+                textColorKey = "Top box text color",
+                width = 120,
+                alignment = Graphics.HOVER_ALIGNMENT_TYPE.ALIGN_ABOVE
+            },
             onHoverInfoEnd
         )
         hoverListeners.moveHeaderHoverListener =
@@ -1854,6 +1898,10 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
             secondaryBadgeFrame = temp
         end
         primaryBadgeFrame.setVisibility(true)
+        return {
+            primary = primaryBadgeFrame,
+            secondary = secondaryBadgeFrame
+        }
     end
 
     local function setBadgeAlignmentAndSize(badgeFrame, newOrientation, showBoth)
@@ -1903,7 +1951,8 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         local primaryBadgeFrame = ui.frames.badgeFrame1
         local secondaryBadgeFrame = ui.frames.badgeFrame2
 
-        setUpPrimarySecondaryBadgeFrames(primaryBadgeFrame, secondaryBadgeFrame, showBoth)
+        local primarySecondary = setUpPrimarySecondaryBadgeFrames(primaryBadgeFrame, secondaryBadgeFrame, showBoth)
+        primaryBadgeFrame, secondaryBadgeFrame = primarySecondary.primary, primarySecondary.secondary
 
         local alignment = Graphics.BADGE_ALIGNMENT_TYPE[settings.badgesAppearance.SINGLE_BADGE_ALIGNMENT]
         if showBoth then

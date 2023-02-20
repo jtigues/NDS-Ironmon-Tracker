@@ -6,20 +6,19 @@ FormsUtils.POPUP_DIALOG_TYPES = {
 }
 
 function FormsUtils.createMainScreenNote(pokemonID, note, noteSettingFunction, drawingFunction)
-    local width, height = 270, 70
+    local width, height = 350, 70
     local clientCenter = FormsUtils.getCenter(width, height)
-    local charMax = 40
     if pokemonID ~= nil then
         forms.destroyall()
         local noteForm =
             forms.newform(
             width,
             height,
-            "Note (" .. charMax .. " char. max)",
+            "Note",
             function()
             end
         )
-        local textBox = forms.textbox(noteForm, note, 190, 0, nil, 5, 5)
+        local textBox = forms.textbox(noteForm, note, 270, 0, nil, 5, 5)
         forms.button(
             noteForm,
             "Set",
@@ -28,7 +27,7 @@ function FormsUtils.createMainScreenNote(pokemonID, note, noteSettingFunction, d
                 drawingFunction()
                 forms.destroy(noteForm)
             end,
-            200,
+            280,
             4,
             48,
             22
@@ -89,6 +88,7 @@ function FormsUtils.shortenFolderName(path)
 end
 
 function FormsUtils.createConfirmDialog(callback)
+    forms.destroyall()
     local center = FormsUtils.getCenter(288,130)
     local x, y = center.xPos, center.yPos
     local width, height = 288, 130
@@ -155,12 +155,13 @@ local function onConfirm(fileSavingOperation, filePath)
    runOperation(fileSavingOperation, filePath)
 end
 
-local function createSaveConfirmDialog(x, y, width, height, fileSavingOperation, filePath)
+local function createSaveConfirmDialog(x, y, width, height, fileSavingOperation, filePath, fileType)
+    forms.destroyall()
     local confirmForm = forms.newform(width, height, "Confirm")
     forms.setlocation(confirmForm, x, y)
     local canvas = forms.pictureBox(confirmForm, 0, 0, width, 52)
 
-    forms.drawText(canvas, 16, 10, "A theme with this name already exists.", 0xFF000000, 0x00000000, 14, "Arial")
+    forms.drawText(canvas, 16, 10, "A "..fileType.." with this name already exists.", 0xFF000000, 0x00000000, 14, "Arial")
     forms.drawText(canvas, 50, 32, "Do you want to replace it?", 0xFF000000, 0x00000000, 14, "Arial")
 
     local confirmButton =
@@ -185,7 +186,7 @@ local function createSaveConfirmDialog(x, y, width, height, fileSavingOperation,
         confirmForm,
         "Cancel",
         function()
-            forms.destroy(confirmForm)
+            forms.destroyall()
         end,
         138,
         height - 74,
@@ -194,7 +195,7 @@ local function createSaveConfirmDialog(x, y, width, height, fileSavingOperation,
     )
 end
 
-local function onSaveClick(x,y,fileNameTextbox, folderPath, fileExtension, fileSavingOperation)
+local function onSaveClick(x,y,fileNameTextbox, folderPath, fileExtension, fileSavingOperation, fileType)
     local text = forms.gettext(fileNameTextbox)
     if text ~= "" then
         local savePath = folderPath.."\\" .. text .. fileExtension
@@ -206,13 +207,15 @@ local function onSaveClick(x,y,fileNameTextbox, folderPath, fileExtension, fileS
                 288,
                 130,
                 fileSavingOperation,
-                savePath
+                savePath,
+                fileType
             )
         end
     end
 end
 
 function FormsUtils.createSaveForm(folderPath, fileType, fileExtension, fileSavingOperation)
+    forms.destroyall()
     local width, height = 288, 70
     local saveForm = forms.newform(width, height, "Save "..fileType)
     local center = FormsUtils.getCenter(width,height)
@@ -236,7 +239,7 @@ function FormsUtils.createSaveForm(folderPath, fileType, fileExtension, fileSavi
     forms.addclick(
         saveButton,
         function()
-            onSaveClick(center.xPos, center.yPos, fileName, folderPath, fileExtension, fileSavingOperation)
+            onSaveClick(center.xPos, center.yPos, fileName, folderPath, fileExtension, fileSavingOperation, fileType)
         end
     )
     local beforeName = fileType:sub(1,1):upper()..fileType:sub(2):lower()

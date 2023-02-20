@@ -49,18 +49,9 @@ local function SeedLogger(initialProgram, initialGameName)
         A_TO_Z = 2
     }
 
-    local function updateKeyList()
-        pastRunKeyList = {}
-        local currentIndex = 1
-        for runHash, _ in pairs(pastRuns) do
-            pastRunKeyList[currentIndex] = runHash
-            currentIndex = currentIndex + 1
-        end
-    end
-
     local function figureOutCause(pastRun)
         local faintedPokemon, enemyPokemon = pastRun.getFaintedPokemon(), pastRun.getEnemyPokemon()
-        local abilityName = AbilityData.ABILITIES[enemyPokemon.ability].name
+        local abilityName = AbilityData.ABILITIES[enemyPokemon.ability + 1].name
         local causeMappings = {
             [PlaythroughConstants.CAUSES.WON] = function()
                 return pastRun.getProgress() == 2

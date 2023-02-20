@@ -1,27 +1,14 @@
 MiscConstants = {}
 
-MiscConstants.TRACKER_VERSION = "5.1.0"
+MiscConstants.TRACKER_VERSION = "5.1.10"
 
 MiscConstants.BIZHAWK_VERSION = client.getversion()
 
 MiscConstants.UPDATE_NOTES = {
-    '-- Added a randomizer log viewer! You can view this after a run dies or from the "Tracked info" screen.',
-    '-- When your run dies, there\'s now a special screen that displays one of a few messages. You can even change these yourself by opening "death_quotes.txt" in the main tracker folder!',
-    '-- Any runs past the lab are now tracked! You can also view these from the "Tracked info" screen.',
-    '-- Some fun statistics are here! They will only apply to runs past the lab, and you can view them in the "Tracked info" screen.',
-    "-- Added early pivot tracking! On early routes, the enemy screen will now show a location icon. Hovering over this shows Pok" ..
-        Chars.accentedE .. "mon you've seen, and clicking while hovering shows vanilla data.",
-    "-- Added profiles for quickload when generating new roms.",
-    "-- Added a way to mark neutral stats.",
-    '-- Added a random Pok' .. Chars.accentedE .. 'ball selector. You can turn this off if you want in the "Tracker Appearance" screen.',
-    "-- The tracker will now keep one autosave per game, instead of only one total.",
-    "-- Updated Fighting and Psychic type icons.",
-    "-- Fixed eggs being revealed early (thanks Fellshadow).",
-    "-- Pok" .. Chars.accentedE .. "mon White 2 is now fully functional.",
-    "-- Added gender-specific evos for a few Pok" .. Chars.accentedE .. "mon.",
-    "-- Fixed Illusion bug for your own Pok" .. Chars.accentedE .. "mon.",
-    "-- Return's power will now be shown if friendship is near max.",
-    "-- Special thanks to the Gen 3 tracker team, Mirasz, PyroMike and Darkeye."
+    '-- Survival\'s heal icon has been changed.',
+    '-- Fixed a bug where scrolling moves in the Log Viewer would not work with the mouse sometimes.',
+    '-- Fixed a bug with badges appearing incorrectly in the Past Run viewer.',
+    '-- Fixed a bug where hovering the enemy location icon to see encounters could crash the tracker.'
 }
 
 MiscConstants.DEFAULT_SETTINGS = {
@@ -31,7 +18,7 @@ MiscConstants.DEFAULT_SETTINGS = {
         RANDOM_BALL_PICKER = true,
         SHOW_POKECENTER_HEALS = false,
         ICON_SET_INDEX = 2,
-        BLIND_MODE=false,
+        BLIND_MODE = false
     },
     controls = {
         CHANGE_VIEW = "Start",
@@ -89,7 +76,14 @@ MiscConstants.DEFAULT_SETTINGS = {
     automaticUpdates = {
         LAST_DAY_CHECKED = "",
         UPDATE_WAS_DONE = true
-    }
+    },
+    trackedInfo = {
+        FAINT_DETECTION = PlaythroughConstants.FAINT_DETECTIONS.ON_FIRST_SLOT_FAINT
+    },
+	extras = {
+		BROWS_ENABLED = false,
+		BROWS_FRAMES = 30
+	}
 }
 
 MiscConstants.DEFAULT_POKEMON = {

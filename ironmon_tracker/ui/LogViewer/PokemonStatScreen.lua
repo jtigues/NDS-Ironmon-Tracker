@@ -73,6 +73,10 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
         MiscUtils.sortPokemonIDsByName(sortedPokemonIDs)
     end
 
+    function self.updateIDs(newIDs)
+        sortedPokemonIDs = newIDs
+    end
+
     function self.initialize(newLogInfo)
         logInfo = newLogInfo
         setUpPokemonIDs()
@@ -99,7 +103,6 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
 
     local function readScrollMovesIntoUI()
         local items = movesScrollBar.getViewedItems()
-        if items[1] == lastViewedItems[1] then return end
         for i = 1, 8, 1 do
             local moveString = ""
             local moveInfo = items[i]
@@ -116,7 +119,6 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
         end
         ui.controls.movesLabel.setText("Moves")
         ui.controls.movesLabel.setTextOffset({x = 16, y = -1})
-        lastViewedItems = MiscUtils.shallowCopy(items)
         program.drawCurrentScreens()
     end
 
@@ -201,6 +203,8 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
         end
         ui.frames.evoLeftArrowFrame.setVisibility(totalEvos > 1)
         ui.frames.evoRightArrowFrame.setVisibility(totalEvos > 1)
+        ui.controls.evoRightButton.setVisibility(totalEvos > 1)
+        ui.controls.evoLeftButton.setVisibility(totalEvos > 1)
         ui.controls.evoImage.setVisibility(totalEvos ~= 0)
         if totalEvos == 0 then
             ui.controls.evoInfoLabel.setText("None")
@@ -259,6 +263,7 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
     local function onMoveClick()
         viewingMoves = not viewingMoves
         local currentID = sortedPokemonIDs[currentIndex]
+        lastViewedItems = {}
         local items = logPokemon[currentID].moves
         local readingFunction = readScrollMovesIntoUI
         if not viewingMoves then
@@ -763,6 +768,7 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
     end
 
     function self.loadPokemonID(id)
+        lastViewedItems = {}
         for index, compare in pairs(sortedPokemonIDs) do
             if compare == id then
                 currentIndex = index

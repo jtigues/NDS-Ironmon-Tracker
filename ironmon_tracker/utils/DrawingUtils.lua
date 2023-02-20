@@ -3,6 +3,7 @@ DrawingUtils = {}
 local colorScheme
 local colorSettings
 local appearanceSettings
+local blackInsteadOfTransparent
 
 local UIClassFolder = Paths.FOLDERS.UI_BASE_CLASSES .. "/"
 local Frame = dofile(UIClassFolder .. "Frame.lua")
@@ -23,19 +24,12 @@ function DrawingUtils.setColorSettings(newColorSettings)
     colorSettings = newColorSettings
 end
 
-function DrawingUtils.setAppearanceSettings(newAppearanceSettings)
-    appearanceSettings = newAppearanceSettings
+function DrawingUtils.setTransparentBackgroundOverride(newValue)
+    blackInsteadOfTransparent = newValue
 end
 
-function DrawingUtils.clearGUI()
-    gui.drawRectangle(
-        Graphics.SIZES.SCREEN_WIDTH,
-        0,
-        Graphics.SIZES.SCREEN_WIDTH + Graphics.SIZES.MAIN_SCREEN_WIDTH,
-        Graphics.SIZES.MAIN_SCREEN_HEIGHT,
-        0x00000000,
-        0x00000000
-    )
+function DrawingUtils.setAppearanceSettings(newAppearanceSettings)
+    appearanceSettings = newAppearanceSettings
 end
 
 function DrawingUtils.textToWrappedArray(text, maxWidth)
@@ -93,7 +87,7 @@ function DrawingUtils.drawHorizontalBarGraph(
     horizontalPadding)
     local borderColor = DrawingUtils.convertColorKeyToColor(borderColorKey)
     local textBarColor = DrawingUtils.convertColorKeyToColor(textBarColorKey)
-    local x, y = position.x, position.y
+    local x, y = position.x, position.y 
     local width, height = size.width, size.height
     local namePadding = horizontalPadding
     local topLeftPoint = {
@@ -129,16 +123,16 @@ function DrawingUtils.drawHorizontalBarGraph(
         totalBars = totalBars + 1
     end
     local barHeight = (height - 2 * graphPadding) / (totalBars + (totalBars / 2) + (1 / 2))
-    local spacing =  barHeight / 2
+    local spacing = barHeight / 2
     local currentIndex = 0
     local topValue = maxValue * 1.35
     local horizontalDistance = math.abs(bottomRightPoint.x - bottomLeftPoint.x)
     for _, dataEntry in pairs(dataSet) do
         local name, value = dataEntry[1], dataEntry[2]
-        local barY = math.floor(spacing + topLeftPoint.y + ((spacing + barHeight) * currentIndex))
+        local barY = math.floor(spacing + topLeftPoint.y + ((spacing + barHeight) * currentIndex)) - 1
         local horizontalDistanceFraction = horizontalDistance * (value / topValue)
         local barX = bottomLeftPoint.x + 1
-        local verticalOffset = (barHeight - 10)/2
+        local verticalOffset = (barHeight - 10) / 2
         gui.drawRectangle(barX, barY, horizontalDistanceFraction, barHeight, textBarColor, textBarColor)
 
         value = tostring(value)
@@ -258,6 +252,10 @@ function DrawingUtils.drawText(x, y, text, textStyle, shadowColor, justifiable, 
             elseif justifiedSpacing == 2 then
                 spacing = 3
             end
+        elseif text == "WT" then
+            spacing = 3
+        elseif text == "ITM" then
+            spacing = 2
         else
             local number = tonumber(text)
             if number ~= nil then
@@ -296,7 +294,11 @@ function DrawingUtils.convertColorKeyToColor(colorKey, transparentOverride)
         ["Bottom box background color"] = true
     }
     if colorSettings["Transparent backgrounds"] and transparentKeys[colorKey] and not transparentOverride then
-        return 0x00000000
+        if blackInsteadOfTransparent then
+            return 0xFF000000
+        else
+            return 0x00000000
+        end
     end
     local color = colorScheme[colorKey]
     if color == nil then
@@ -462,6 +464,24 @@ function DrawingUtils.getNatureColor(stat, nature)
 end
 
 function DrawingUtils.drawExtraMainScreenStuff(extraThingsToDraw)
+    if extraThingsToDraw.friendshipBar ~= nil then
+        local x, y, progress =
+            extraThingsToDraw.friendshipBar.x,
+            extraThingsToDraw.friendshipBar.y,
+            extraThingsToDraw.friendshipBar.progress
+        if progress < 1 then
+            IconDrawer.drawFriendshipProgress(x, y, progress)
+        else
+            local style =
+            TextStyle(
+            Graphics.FONT.DEFAULT_FONT_SIZE,
+            Graphics.FONT.DEFAULT_FONT_FAMILY,
+            "Positive text color",
+            "Top box background color"
+        )
+            DrawingUtils.drawText(x-2, y-3, "READY", style, DrawingUtils.calcShadowColor("Top box background color"))
+        end
+    end
     if extraThingsToDraw.statStages ~= nil then
         for _, statStageInfo in pairs(extraThingsToDraw.statStages) do
             DrawingUtils.drawStatStageChevrons(statStageInfo.position, statStageInfo.stage)

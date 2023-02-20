@@ -638,7 +638,7 @@ LocationData.LOCATION_DATA = {
             },
             ["Lake Verity"] = {
                 totalPokemon = 2,
-                vanilleData = {
+                vanillaData = {
                 {
                     {level = 3, percent = 20},
                     {level = 5, percent = 20},
@@ -1326,7 +1326,7 @@ LocationData.LOCATION_DATA = {
                 totalPokemon = 4,
                 vanillaData = {
                     {
-                        {level = 9, percent = 35},
+                        {level = 6, percent = 35},
                         {level = 9, percent = 5}
                     },
                     {

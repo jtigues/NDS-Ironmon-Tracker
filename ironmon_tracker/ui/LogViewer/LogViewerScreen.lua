@@ -247,6 +247,10 @@ local function LogViewerScreen(initialSettings, initialTracker, initialProgram)
         tabScreenStack = ScreenStack({pokemonScreenStack, trainerScreenStack, gymTMScreen, statsScreen, infoScreen})
     end
 
+    function self.updatePokemonStatIDs(newIDs)
+        pokemonStatScreen.updateIDs(newIDs)
+    end
+
     function self.loadPokemonStats(id)
         self.changeActiveTabIndex(1)
         pokemonScreenStack.setCurrentIndex(2)
@@ -293,7 +297,6 @@ local function LogViewerScreen(initialSettings, initialTracker, initialProgram)
         logInfo = newLogInfo
         trainerGroups = MiscUtils.deepCopy(program.getGameInfo().TRAINERS.IMPORTANT_GROUPS)
         formatTrainerGroups()
-        self.changeActiveTabIndex(1)
         trainerOverviewScreen.initialize(logInfo)
         teamInfoScreen.initialize(logInfo)
         pokemonStatScreen.initialize(logInfo)
@@ -301,6 +304,8 @@ local function LogViewerScreen(initialSettings, initialTracker, initialProgram)
         statsScreen.initialize(logInfo)
         gymTMScreen.initialize(logInfo)
         infoScreen.initialize(logInfo)
+        self.resetTabs()
+        self.changeActiveTabIndex(1)
     end
 
     function self.runEventListeners()

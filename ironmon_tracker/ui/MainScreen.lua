@@ -4,7 +4,7 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
     local JoypadEventListener = dofile(Paths.FOLDERS.UI_BASE_CLASSES .. "/JoypadEventListener.lua")
     local FrameCounter = dofile(Paths.FOLDERS.DATA_FOLDER .. "/FrameCounter.lua")
     local MainScreenUIInitializer = dofile(Paths.FOLDERS.UI_FOLDER .. "/MainScreenUIInitializer.lua")
-	local BrowsManager = dofile(Paths.FOLDERS.EXTRAS_FOLDER .. "/BrowsManager.lua")
+    local BrowsManager = dofile(Paths.FOLDERS.EXTRAS_FOLDER .. "/BrowsManager.lua")
 
     local settings = initialSettings
     local tracker = initialTracker
@@ -19,7 +19,7 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
     local randomBallPickerActive = false
     local defeatedLance = false
     local mainScreenUIInitializer
-	local browsManager
+    local browsManager
     local statCycleIndex = -1
     local stats = {"HP", "ATK", "DEF", "SPA", "SPD", "SPE"}
     local eventListeners = {
@@ -39,7 +39,6 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         statStages = {},
         status = {}
     }
-
     local function onHoverInfoEnd()
         activeHoverFrame = nil
         program.drawCurrentScreens()
@@ -255,7 +254,7 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         end
     end
 
-	function self.getInnerFramePosition()
+    function self.getInnerFramePosition()
         return ui.frames.mainInnerFrame.getPosition()
     end
 
@@ -281,14 +280,14 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         program.drawCurrentScreens()
     end
 
-	local function initUI()
+    local function initUI()
         ui.controls = {}
         ui.frames = {}
         ui.mainFrame = nil
         mainScreenUIInitializer = MainScreenUIInitializer(ui, program.getGameInfo())
         mainScreenUIInitializer.initUI()
-		browsManager = BrowsManager(settings, ui, currentPokemon, frameCounters, program)
-		browsManager.initialize()
+        browsManager = BrowsManager(settings, ui, currentPokemon, frameCounters, program)
+        browsManager.initialize()
     end
 
     local function setUpStatStages(isEnemy)
@@ -546,6 +545,12 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         ui.controls.abilityDetails.setText("Last level: " .. tracker.getLastLevelSeen(currentPokemon.pokemonID))
         ui.controls.healsLabel.setText("")
         ui.controls.statusItemsLabel.setText("")
+        local bookmarked = tracker.isMarked(currentPokemon.pokemonID)
+        local iconName = "BOOKMARK_FILLED"
+        if not bookmarked then
+            iconName = "BOOKMARK_EMPTY"
+        end
+        ui.controls.bookmarkIcon.setIconName(iconName)
         readTrackedEncountersIntoLabel()
     end
 
@@ -602,6 +607,8 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         ui.frames.survivalHealFrame.setVisibility(false)
         ui.frames.accEvaFrame.setVisibility(false)
         ui.frames.hiddenPowerArrowsFrame.setVisibility(false)
+        ui.controls.noteLabels[1].setVisibility(false)
+        ui.controls.noteLabels[2].setVisibility(false)
 
         eventListeners.loadStatOverview.setOnClickParams(currentPokemon.pokemonID)
 
@@ -747,6 +754,34 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         else
             heldItemDescription = heldItemDescription .. " Yum!"
         end
+        return heldItemDescription
+    end
+
+    local function setUpEvo(isEnemy)
+        extraThingsToDraw.friendshipBar = nil
+        local evo = currentPokemon.evolution
+        --male/female difference evos
+        if type(evo) == "table" then
+            if not currentPokemon.isFemale then
+                currentPokemon.isFemale = 0
+            end
+            evo = evo[currentPokemon.isFemale + 1]
+        end
+        if evo == PokemonData.EVOLUTION_TYPES.FRIEND and not isEnemy and not inPastRunView then
+            local position = ui.controls.pokemonLevelAndEvo.getPosition()
+            local base = currentPokemon.baseFriendship or 0
+            local progress = (currentPokemon.friendship - base) / (220 - base)
+
+            extraThingsToDraw.friendshipBar = {
+                ["progress"] = progress,
+                x = position.x + 19 + (5 * #(tostring(currentPokemon.level))),
+                y = position.y + 3
+            }
+            if progress >= 1 then
+                evo = "READY"
+            end
+        end
+        ui.controls.pokemonLevelAndEvo.setText("Lv. " .. currentPokemon.level .. " (" .. evo .. ")")
     end
 
     local function setUpMainPokemonInfo(isEnemy)
@@ -772,20 +807,9 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
             ui.controls.pokemonImageLabel,
             currentIconSet.IMAGE_OFFSET
         )
+        setUpEvo(isEnemy)
         local pokemonHoverParams = hoverListeners.pokemonHoverListener.getOnHoverParams()
         pokemonHoverParams.pokemon = currentPokemon
-        local evo = currentPokemon.evolution
-        --male/female difference evos
-        if type(evo) == "table" then
-            if not currentPokemon.isFemale then
-                currentPokemon.isFemale = 0
-            end
-            evo = evo[currentPokemon.isFemale + 1]
-        end
-        if evo == PokemonData.EVOLUTION_TYPES.FRIEND and not isEnemy and currentPokemon.friendship >= 220 then
-            evo = "SOON"
-        end
-        ui.controls.pokemonLevelAndEvo.setText("Lv. " .. currentPokemon.level .. " (" .. evo .. ")")
         ui.controls.pokemonHP.setText("HP: " .. currentPokemon.curHP .. "/" .. currentPokemon.stats.HP)
         local abilityName = AbilityData.ABILITIES[currentPokemon.ability + 1].name
         if settings.appearance.BLIND_MODE then
@@ -808,7 +832,7 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         local itemHoverParams = hoverListeners.heldItemHoverListener.getOnHoverParams()
         local heldItemDescription = heldItemInfo.description
         if ItemData.NATURE_SPECIFIC_BERRIES[heldItemInfo.name] ~= nil then
-            readNatureSpecificBerry(heldItemInfo.name, heldItemDescription)
+            heldItemDescription = readNatureSpecificBerry(heldItemInfo.name, heldItemDescription)
         end
         itemHoverParams.text = heldItemDescription
     end
@@ -850,7 +874,7 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
 
     function self.setPokemonToDraw(pokemon, otherPokemon)
         currentPokemon = pokemon
-		browsManager.setCurrentPokemon(pokemon)
+        browsManager.setCurrentPokemon(pokemon)
         opposingPokemon = otherPokemon
     end
 
@@ -911,7 +935,7 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
         self.updateBadgeLayout()
         readPokemonIntoUI()
         setUpBasedOnRandomBallPicker()
-		browsManager.show()
+        browsManager.show()
         ui.frames.mainFrame.show()
         if not program.isInBattle() or inPastRunView or inTrackedView then
             extraThingsToDraw.moveEffectiveness = {}
@@ -962,6 +986,22 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
             ui.controls.pastRunLocationIcon.setVisibility(false)
             ui.controls.noteLabels[2].setText("You won!")
         end
+    end
+
+    local function onBookmarkClick()
+        local filled = string.match(ui.controls.bookmarkIcon.getIconName(), "FILLED")
+        local newIconName = "BOOKMARK_FILLED"
+        if filled then
+            newIconName = "BOOKMARK_EMPTY"
+        end
+        ui.controls.bookmarkIcon.setIconName(newIconName)
+        filled = not filled
+        if filled then
+            tracker.markID(currentPokemon.pokemonID)
+        else
+            tracker.unmarkID(currentPokemon.pokemonID)
+        end
+        program.drawCurrentScreens()
     end
 
     local function initStatListeners()
@@ -1053,6 +1093,7 @@ local function MainScreen(initialSettings, initialTracker, initialProgram)
             eventListeners,
             MouseClickEventListener(ui.controls.rightHiddenPowerLabel, onChangeHiddenPower, "forward")
         )
+        table.insert(eventListeners, MouseClickEventListener(ui.controls.bookmarkIcon, onBookmarkClick))
     end
 
     function self.getMainFrameSize()

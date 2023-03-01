@@ -547,7 +547,7 @@ local function MainScreenUIInitializer(ui, gameInfo)
                         x = 0,
                         y = 0
                     },
-                    {width = 10, height = 10}
+                    {width = 62, height = 10}
                 )
             ),
             TextField(
@@ -844,8 +844,7 @@ local function MainScreenUIInitializer(ui, gameInfo)
                         "Top box background color"
                     ),
                     true
-                ),
-                nil
+                )
             )
             local predictionLabel = stat .. "StatPrediction"
             ui.controls[predictionLabel] =
@@ -870,9 +869,7 @@ local function MainScreenUIInitializer(ui, gameInfo)
                         "Top box text color",
                         "Top box background color"
                     )
-                ),
-                nil,
-                false
+                )
             )
         end
         ui.frames.BSTFrame =

@@ -63,6 +63,43 @@ function MiscUtils.sortPokemonIDsByName(ids)
     )
 end
 
+function MiscUtils.getSortedKeysByName(dataGroup)
+    local ids = {}
+    for id, _ in pairs(dataGroup) do
+        if id ~= 1 then
+            table.insert(ids, id - 1)
+        end
+    end
+    table.sort(
+        ids,
+        function(k1, k2)
+            return dataGroup[k1 + 1].name:lower() < dataGroup[k2 + 1].name:lower()
+        end
+    )
+    return ids
+end
+
+function MiscUtils.splitIDsByMaximumPixelLength(ids, dataGroup, maxPixelLength, spacing)
+    local sets = {}
+    local currentSet = {}
+    local currentLength = 0
+    for _, id in pairs(ids) do
+        local name = dataGroup[id + 1].name
+        local addedLength = DrawingUtils.calculateWordPixelLength(name) + spacing
+        currentLength = currentLength + addedLength
+        if currentLength > maxPixelLength then
+            currentLength = addedLength
+            table.insert(sets, MiscUtils.deepCopy(currentSet))
+            currentSet = {}
+        end
+        table.insert(currentSet, id)
+    end
+    if #currentSet ~= 0 then
+        table.insert(sets, MiscUtils.deepCopy(currentSet))
+    end
+    return sets
+end
+
 function MiscUtils.shallowCopy(original)
     local copy = {}
     for key, value in pairs(original) do
@@ -91,6 +128,37 @@ end
 
 function MiscUtils.round(number)
     return math.floor(number + 0.5)
+end
+
+function MiscUtils.convertTrainerGroupsToSortedIndices(trainerGroups)
+    local sortedIndices = {}
+    for groupIndex, trainerGroup in pairs(trainerGroups) do
+        local battles = trainerGroup.battles
+        for index, battle in pairs(battles) do
+            local battleName = battle.name
+            --basically for numbering each rival fight, e.g. "Bianca 1", "Bianca 2", etc.
+            if trainerGroup.trainerType == TrainerData.TRAINER_TYPES.RIVAL then
+                battleName = battleName .. " " .. index
+            end
+            local imageName = battle.name
+            table.insert(
+                sortedIndices,
+                {
+                    ["battleName"] = battleName,
+                    ["imageName"] = imageName,
+                    ["battle"] = battle,
+                    ["groupIndex"] = groupIndex
+                }
+            )
+        end
+    end
+    table.sort(
+        sortedIndices,
+        function(entry1, entry2)
+            return entry1.battleName < entry2.battleName
+        end
+    )
+    return sortedIndices
 end
 
 function MiscUtils.splitTableByNumber(tbl, number)
@@ -184,7 +252,7 @@ function MiscUtils.validPokemonData(pokemonData)
     end
     local id = tonumber(pokemonData.pokemonID)
     local heldItem = tonumber(pokemonData.heldItem)
-    if id == nil or pokemonData.level > 100 or pokemonData.ability > 164 then 
+    if id == nil or pokemonData.level > 100 or pokemonData.ability > 164 then
         return false
     end
     if id < 0 or id > 690 or heldItem < 0 or heldItem > 650 then
@@ -259,6 +327,27 @@ function MiscUtils.readLinesFromFile(file, allowNewLines)
     end
     file:close()
     return lines
+end
+
+local function calculateFluctuatingAtLevel(level)
+    if level < 15 then
+        return math.floor((level ^ 3 * (((level + 1) / 3) + 24)) / 50)
+    elseif level < 36 then
+        return math.floor((level ^ 3 * (level + 14)) / 50)
+    elseif level < 100 then
+        return math.floor((level ^ 3 * ((level / 2) + 32)) / 50)
+    end
+    return 0
+end
+
+function MiscUtils.calculateExperiencePercent(level, currentExperience)
+    if currentExperience == 0 then
+        return 0
+    end
+    local nextLevel = level + 1
+    local expAtCurrent = calculateFluctuatingAtLevel(level)
+    local expAtNextLevel = calculateFluctuatingAtLevel(nextLevel)
+    return (currentExperience - expAtCurrent) / (expAtNextLevel - expAtCurrent)
 end
 
 function MiscUtils.readStringFromFile(fileName)

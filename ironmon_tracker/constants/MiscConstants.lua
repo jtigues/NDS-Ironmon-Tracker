@@ -1,15 +1,16 @@
 MiscConstants = {}
 
-MiscConstants.TRACKER_VERSION = "5.2.0"
+MiscConstants.TRACKER_VERSION = "5.3.0"
 
 MiscConstants.BIZHAWK_VERSION = client.getversion()
 
 MiscConstants.UPDATE_NOTES = {
-    '-- Courtesy of Ninjafriend, there is now animated brows for the Pok'..Chars.accentedE..'mon stadium set. You can enable this in the icon sets menu under "Tracker Appearance."'
+    '-- Adds a new much requested Search feature to the Log Viewer. Try it out!'
 }
 
 MiscConstants.DEFAULT_SETTINGS = {
     appearance = {
+        EXPERIENCE_BAR = true,
         RIGHT_JUSTIFIED_NUMBERS = true,
         SHOW_ACCURACY_AND_EVASION = true,
         RANDOM_BALL_PICKER = true,
@@ -86,6 +87,7 @@ MiscConstants.DEFAULT_SETTINGS = {
 MiscConstants.DEFAULT_POKEMON = {
     pid = 0,
     alternateForm = 0x0000,
+    experience = 0,
     pokemonID = 0,
     trainerID = 0,
     heldItem = 0,

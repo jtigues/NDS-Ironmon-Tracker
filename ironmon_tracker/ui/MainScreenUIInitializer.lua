@@ -646,7 +646,7 @@ local function MainScreenUIInitializer(ui, gameInfo)
             ui.frames.pokemonInfoFrame
         )
 
-		ui.frames.bookmarkFrame =
+        ui.frames.bookmarkFrame =
             Frame(
             Box(
                 {
@@ -693,7 +693,7 @@ local function MainScreenUIInitializer(ui, gameInfo)
             ui.frames.infoBottomFrame
         )
 
-		ui.controls.bookmarkIcon =
+        ui.controls.bookmarkIcon =
             Icon(
             Component(ui.frames.bookmarkFrame, Box({x = 0, y = 0}, {width = 8, height = 8}, nil, nil)),
             "BOOKMARK_EMPTY",

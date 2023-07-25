@@ -79,6 +79,7 @@ Graphics.LETTER_PIXEL_LENGTHS = {
     ["("] = 2,
     [")"] = 2,
     ["+"] = 4,
+    ["/"] = 3,
     a = 4,
     A = 5,
     b = 4,
@@ -162,6 +163,14 @@ Graphics.TYPE_COLORS = {
     DARK = 0xFF6E5848,
     FAIRY = 0xFFEE99AC,
     UNKNOWN = 0xFF68A090 
+}
+Graphics.THEME_COLORS = {
+    WHITE = 0xFFFFFFFF,
+    BLACK = 0xFF000000,
+    DARK_POSITIVE = 0xFF0343B0,
+    DARK_NEGATIVE = 0xFFB40002,
+    LIGHT_POSITIVE = 0xFFC8DDFF,
+    LIGHT_NEGATIVE = 0xFFFDCDCD
 }
 Graphics.PATHS = {
     TRAINER_IMAGES = "ironmon_tracker/images/trainers/"

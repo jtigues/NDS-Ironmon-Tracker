@@ -1,7 +1,7 @@
 local function PokemonStatScreen(initialSettings, initialTracker, initialProgram, initialLogViewerScreen)
     local Frame = dofile(Paths.FOLDERS.UI_BASE_CLASSES .. "/Frame.lua")
     local Box = dofile(Paths.FOLDERS.UI_BASE_CLASSES .. "/Box.lua")
-    local Component = dofile(Paths.FOLDERS.UI_BASE_CLASSES .. "/cOMPONENT.lua")
+    local Component = dofile(Paths.FOLDERS.UI_BASE_CLASSES .. "/Component.lua")
     local TextLabel = dofile(Paths.FOLDERS.UI_BASE_CLASSES .. "/TextLabel.lua")
     local TextField = dofile(Paths.FOLDERS.UI_BASE_CLASSES .. "/TextField.lua")
     local TextStyle = dofile(Paths.FOLDERS.UI_BASE_CLASSES .. "/TextStyle.lua")
@@ -12,6 +12,8 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
     local MouseClickEventListener = dofile(Paths.FOLDERS.UI_BASE_CLASSES .. "/MouseClickEventListener.lua")
     local HoverEventListener = dofile(Paths.FOLDERS.UI_BASE_CLASSES .. "/HoverEventListener.lua")
     local ScrollBar = dofile(Paths.FOLDERS.UI_BASE_CLASSES .. "/ScrollBar.lua")
+    local FrameCounter = dofile(Paths.FOLDERS.DATA_FOLDER .. "/FrameCounter.lua")
+    local BrowsManager = dofile(Paths.FOLDERS.EXTRAS_FOLDER .. "/BrowsManager.lua")
 
     local logViewerScreen = initialLogViewerScreen
     local settings = initialSettings
@@ -24,11 +26,12 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
     local currentIndex = 1
     local currentEvoIndex = 1
     local currentEvoList = {}
+    local rankingStatistics = {}
     local program = initialProgram
     local logInfo
+    local browsManager
     local constants = {
-        STATS_FRAME_HEIGHT = Graphics.SIZES.SCREEN_HEIGHT - 2 * Graphics.SIZES.BORDER_MARGIN -
-            Graphics.LOG_VIEWER.TAB_HEIGHT -
+        STATS_FRAME_HEIGHT = Graphics.SIZES.SCREEN_HEIGHT - 2 * Graphics.SIZES.BORDER_MARGIN - Graphics.LOG_VIEWER.TAB_HEIGHT -
             46,
         STATS_FRAME_WIDTH = 144,
         NAV_NAME_FRAME_HEIGHT = 36,
@@ -47,6 +50,7 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
     local abilityHoverListeners = {}
     local moveHoverListeners = {}
     local hoverListeners = {}
+    local frameCounters = {}
     local self = {}
 
     local function onHoverInfoEnd()
@@ -73,6 +77,10 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
         MiscUtils.sortPokemonIDsByName(sortedPokemonIDs)
     end
 
+    function self.getCurrentIndex()
+        return currentIndex
+    end
+
     function self.updateIDs(newIDs)
         sortedPokemonIDs = newIDs
     end
@@ -80,15 +88,28 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
     function self.initialize(newLogInfo)
         logInfo = newLogInfo
         setUpPokemonIDs()
+        browsManager =
+            BrowsManager(initialSettings, ui, frameCounters, initialProgram, initialProgram.UI_SCREENS.LOG_VIEWER_SCREEN)
+        browsManager.initialize()
+        rankingStatistics =
+            StatisticsOrganizer.createLogRankingStatistics(logPokemon, MiscUtils.shallowCopy(sortedPokemonIDs))
+        if program.getGameInfo().GEN == 5 then
+            --subtract 13
+            ui.frames.mainMovesFrame.resize({width = constants.MOVES_FRAME_WIDTH, height = 100})
+            ui.frames.moveScrollerFrame.resize({width = constants.MOVES_FRAME_WIDTH, height = 86})
+            ui.frames.abilityListFrame.resize({width = constants.MOVES_FRAME_WIDTH, height = 37})
+            movesScrollBar.setSpaceAvailable(7)
+        end
     end
 
     local function onPokemonImageHover(params)
-        activeHoverFrame =
-            UIUtils.createAndDrawTypeResistancesFrame(params, program.drawCurrentScreens, ui.frames.mainFrame)
+        activeHoverFrame = UIUtils.createAndDrawTypeResistancesFrame(params, program.drawCurrentScreens, ui.frames.mainFrame)
     end
 
     local function onMoveInfoClick(params)
-        if activeHoverFrame ~= nil then return end
+        if activeHoverFrame ~= nil then
+            return
+        end
         activeHoverFrame = UIUtils.createAndDrawMoveHoverFrame(params, program.drawCurrentScreens, ui.frames.mainFrame)
         hoverListeners.moveInfoListener = HoverEventListener(params.control, nil, nil, onMoveHoverEnd)
     end
@@ -113,6 +134,8 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
                 end
                 moveString = level .. " " .. MoveData.MOVES[moveInfo.move + 1].name
                 readMoveIntoListener(i, moveInfo.move)
+            else
+                moveHoverListeners[i].getOnClickParams().move = -1
             end
             ui.controls.moveLabels[i].setTextColorKey("Top box text color")
             ui.controls.moveLabels[i].setText(moveString)
@@ -144,6 +167,8 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
                     moveHoverListeners[i].getOnClickParams().move = -1
                 end
                 readMoveIntoListener(i, moveID)
+            else
+                moveHoverListeners[i].getOnClickParams().move = -1
             end
             label.setText(moveString)
         end
@@ -155,12 +180,13 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
     local function readAbilitiesIntoUI(pokemon)
         for i = 1, 3, 1 do
             local abilityID = pokemon.abilities[i]
+            local hoverListener = abilityHoverListeners[i]
+            local params = hoverListener.getOnHoverParams()
             if abilityID == nil then
                 ui.controls.abilityLabels[i].setText("")
+                params.text = ""
             else
                 local abilityInfo = AbilityData.ABILITIES[abilityID + 1]
-                local hoverListener = abilityHoverListeners[i]
-                local params = hoverListener.getOnHoverParams()
                 params.text = abilityInfo.description
                 hoverListener.setOnHoverParams(params)
                 ui.controls.abilityLabels[i].setText(i .. ". " .. abilityInfo.name)
@@ -184,12 +210,7 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
             local evolution = currentEvoList[currentEvoIndex]
             if evolution ~= nil then
                 local currentIconSet = IconSets.SETS[settings.appearance.ICON_SET_INDEX]
-                DrawingUtils.readPokemonIDIntoImageLabel(
-                    currentIconSet,
-                    evolution,
-                    ui.controls.evoImage,
-                    {x = 1, y = 0}
-                )
+                DrawingUtils.readPokemonIDIntoImageLabel(currentIconSet, evolution, ui.controls.evoImage, {x = 1, y = 0})
                 local evoInfo = PokemonData.POKEMON[currentID + 1].evolution
                 if PokemonData.EVO_LONGER_NAMES[evoInfo] then
                     evoInfo = PokemonData.EVO_LONGER_NAMES[evoInfo][currentEvoIndex]
@@ -215,6 +236,9 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
         local currentID = sortedPokemonIDs[currentIndex]
         local name = PokemonData.POKEMON[currentID + 1].name
         local nameLength = DrawingUtils.calculateWordPixelLength(name)
+        browsManager.setCurrentPokemon(
+            {["pokemonID"] = currentID, ["baseFormData"] = PokemonData.POKEMON[currentID + 1].baseFormData}
+        )
         ui.controls.pokemonNameLabel.setText(name)
         local currentIconSet = IconSets.SETS[settings.appearance.ICON_SET_INDEX]
         DrawingUtils.readPokemonIDIntoImageLabel(currentIconSet, currentID, ui.controls.pokemonImage, {x = 1, y = 0})
@@ -698,7 +722,7 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
                 nil,
                 nil
             ),
-            Layout(Graphics.ALIGNMENT_TYPE.HORIZONTAL, 0, {x=0,y=2}),
+            Layout(Graphics.ALIGNMENT_TYPE.HORIZONTAL, 0, {x = 0, y = 2}),
             ui.frames.evosFrame
         )
         local arrowFrameInfo = FrameFactory.createArrowFrame("LEFT_ARROW_LARGE", ui.frames.evoImageFrame, 12, 8)
@@ -751,8 +775,7 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
                 },
                 {
                     width = Graphics.SIZES.SCREEN_WIDTH - 2 * Graphics.SIZES.BORDER_MARGIN,
-                    height = Graphics.SIZES.SCREEN_HEIGHT - 2 * Graphics.SIZES.BORDER_MARGIN -
-                        Graphics.LOG_VIEWER.TAB_HEIGHT -
+                    height = Graphics.SIZES.SCREEN_HEIGHT - 2 * Graphics.SIZES.BORDER_MARGIN - Graphics.LOG_VIEWER.TAB_HEIGHT -
                         5
                 },
                 "Top box background color",
@@ -785,9 +808,17 @@ local function PokemonStatScreen(initialSettings, initialTracker, initialProgram
                 eventListener.listen()
             end
         end
+        self.runFrameCounters()
+    end
+
+    function self.runFrameCounters()
+        for _, counter in pairs(frameCounters) do
+            counter.decrement()
+        end
     end
 
     function self.show()
+        browsManager.show()
         ui.frames.mainFrame.show()
         if activeHoverFrame ~= nil then
             activeHoverFrame.show()

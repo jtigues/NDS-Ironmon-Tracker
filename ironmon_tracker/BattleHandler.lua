@@ -5,6 +5,7 @@ local function BattleHandler(
     initialTracker,
     initialProgram,
     initialSettings)
+
     local FrameCounter = dofile(Paths.FOLDERS.DATA_FOLDER .. "/FrameCounter.lua")
 
     local self = {}
@@ -16,6 +17,7 @@ local function BattleHandler(
     local program = initialProgram
     local settings = initialSettings
 
+    local defeatedTrainerList = {}
     local GEN5_activePlayerMonPIDAddr = nil
     local GEN5_PIDSwitchData = {}
     local totalBattlesCompleted = 0
@@ -365,6 +367,7 @@ local function BattleHandler(
                     program.disableMoveEffectiveness()
                     program.addEffectivenessEnablingFrameCounter(delay)
                     tracker.updateCurrentLevel(pokemonData.pokemonID, pokemonData.level)
+                    program.switchToEnemy()
                     if enemyTrainerID ~= nil and enemyTrainerID == 0 then
                         tracker.updateEncounterData(pokemonData.pokemonID, pokemonData.level)
                     end
@@ -444,9 +447,14 @@ local function BattleHandler(
         end
     end
 
+    function self.getDefeatedTrainers()
+        return defeatedTrainerList
+    end
+
     local function onEndOfBattle()
         if inBattle then
             if not tracker.hasRunEnded() then
+                defeatedTrainerList[enemyTrainerID] = true
                 if gameInfo.TRAINERS.LAB_IDS[enemyTrainerID] then
                     tracker.setProgress(PlaythroughConstants.PROGRESS.PAST_LAB)
                 elseif gameInfo.TRAINERS.FINAL_FIGHT_ID == enemyTrainerID then

@@ -1,17 +1,16 @@
 MiscConstants = {}
 
-MiscConstants.TRACKER_VERSION = "5.4.1"
+MiscConstants.TRACKER_VERSION = "5.5.8"
 
 MiscConstants.BIZHAWK_VERSION = client.getversion()
 
 MiscConstants.UPDATE_NOTES = {
-    '-- Log backups are now in the savedData folder to prevent confusion. You should delete the old backup if you are still seeing what looks like 2 identical logs.',
-    '-- Fixed a bug where hovering over route data with Transparent Backgrounds on would look bad.',
-    '-- Fixed a bug that was causing a slight FPS dip.'
+    '-- Added a button under "Tracked Info" to load someone else\'s tracker data for sharing purposes.'
 }
 
 MiscConstants.DEFAULT_SETTINGS = {
     appearance = {
+        AUTO_POKEMON_THEMES = false,
         EXPERIENCE_BAR = true,
         RIGHT_JUSTIFIED_NUMBERS = true,
         SHOW_ACCURACY_AND_EVASION = true,
@@ -28,6 +27,7 @@ MiscConstants.DEFAULT_SETTINGS = {
         LOCK_ENEMY = "Select"
     },
     battle = {
+        AUTO_SWAP_TO_ENEMY = false,
         CALCULATE_VARIABLE_DAMAGE = true,
         SHOW_MOVE_EFFECTIVENESS = true,
         SHOW_ACTUAL_ENEMY_PP = true,
@@ -83,6 +83,9 @@ MiscConstants.DEFAULT_SETTINGS = {
     extras = {
         BROWS_ENABLED = false,
         BROWS_FRAMES = 8
+    },
+    tourneyTracker = {
+        ENABLED = false
     }
 }
 

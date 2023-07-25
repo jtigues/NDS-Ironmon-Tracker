@@ -67,7 +67,10 @@ function FormsUtils.fileExists(path)
 end
 
 function FormsUtils.getFileNameFromPath(path)
-    return path:reverse():match("([^\\]*)\\"):reverse()
+    if path == nil or path == "" then
+        return nil
+    end
+    return path:reverse():match("([^"..Paths.SLASH.."]*)"..Paths.SLASH):reverse()
 end
 
 function FormsUtils.getCenter(width, height)
@@ -79,7 +82,7 @@ end
 
 function FormsUtils.shortenFolderName(path)
     if path ~= "" then
-        local shortenedPath = path:reverse():match("([^\\]*\\)"):reverse()
+        local shortenedPath = path:reverse():match("([^"..Paths.SLASH.."]*"..Paths.SLASH..")"):reverse() -- TODO: make multiplatform
         if #shortenedPath > 25 then
             shortenedPath = shortenedPath:sub(1, 25) .. "..."
         end
@@ -202,7 +205,7 @@ end
 local function onSaveClick(x, y, fileNameTextbox, folderPath, fileExtension, fileSavingOperation, fileType)
     local text = forms.gettext(fileNameTextbox)
     if text ~= "" then
-        local savePath = folderPath .. "\\" .. text .. fileExtension
+        local savePath = folderPath .. Paths.SLASH .. text .. fileExtension
         if not FormsUtils.fileExists(savePath) then
             runOperation(fileSavingOperation, savePath)
         else
@@ -284,7 +287,12 @@ function FormsUtils.createFavoriteChoosingForm(callback, favoritesIndex)
     )
 end
 
-function FormsUtils.createAttemptEditingWindow(currentAttempts, callback)
+function FormsUtils.displayError(message)
+    forms.destroyall()
+    FormsUtils.popupDialog(message, 250, 120, FormsUtils.POPUP_DIALOG_TYPES.WARNING, true)
+end
+
+function FormsUtils.createAttemptEditingWindow(currentAttempts, onAttemptsSet, UICallback)
     local mainWidth, mainHeight = 270, 106
     local form =
         forms.newform(
@@ -308,7 +316,7 @@ function FormsUtils.createAttemptEditingWindow(currentAttempts, callback)
         form,
         "Set",
         function()
-            callback(tonumber(forms.gettext(attemptsEdit),10))
+            onAttemptsSet(tonumber(forms.gettext(attemptsEdit),10), UICallback)
             forms.destroy(form)
         end,
         textboxWidth + 20,

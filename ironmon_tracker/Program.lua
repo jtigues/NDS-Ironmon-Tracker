@@ -19,8 +19,10 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	local RunOverScreen = dofile(Paths.FOLDERS.UI_FOLDER .. "/RunOverScreen.lua")
 	local UpdateNotesScreen = dofile(Paths.FOLDERS.UI_FOLDER .. "/UpdateNotesScreen.lua")
 	local RandomBallScreen = dofile(Paths.FOLDERS.UI_FOLDER .. "/RandomBallScreen.lua")
-	local TitleScreen = dofile(Paths.FOLDERS.UI_FOLDER.."/TitleScreen.lua")
-	local RestorePointsScreen = dofile(Paths.FOLDERS.UI_FOLDER.."/RestorePointsScreen.lua")
+	local TitleScreen = dofile(Paths.FOLDERS.UI_FOLDER .. "/TitleScreen.lua")
+	local RestorePointsScreen = dofile(Paths.FOLDERS.UI_FOLDER .. "/RestorePointsScreen.lua")
+	local TourneyTrackerScreen = dofile(Paths.FOLDERS.UI_FOLDER .. "/TourneyTrackerScreen.lua")
+	local ExtrasScreen = dofile(Paths.FOLDERS.UI_FOLDER .. "/ExtrasScreen.lua")
 
 	local INI = dofile(Paths.FOLDERS.DATA_FOLDER .. "/Inifile.lua")
 	local PokemonDataReader = dofile(Paths.FOLDERS.DATA_FOLDER .. "/PokemonDataReader.lua")
@@ -29,6 +31,8 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	local SeedLogger = dofile(Paths.FOLDERS.DATA_FOLDER .. "/SeedLogger.lua")
 	local PastRun = dofile(Paths.FOLDERS.DATA_FOLDER .. "/PastRun.lua")
 	local BattleHandler = dofile(Paths.FOLDERS.DATA_FOLDER .. "/BattleHandler.lua")
+	local PokemonThemeManager = dofile(Paths.FOLDERS.DATA_FOLDER .. "/PokemonThemeManager.lua")
+	local TourneyTracker = dofile(Paths.FOLDERS.DATA_FOLDER .. "/TourneyTracker.lua")
 
 	self.SELECTED_PLAYERS = {
 		PLAYER = 0,
@@ -48,6 +52,8 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	local randomizerLogParser
 	local battleHandler
 
+	local currentLocation = nil
+	local currentMapID = nil
 	local runEvents = true
 	local locked = false
 	local lockedPokemonCopy = nil
@@ -55,6 +61,7 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	local healingItems = nil
 	local inTrackedPokemonView = false
 	local doneWithTitleScreen = false
+	local displayedBW2Error = false
 	local inPastRunView = false
 	local inLockedView = false
 	local statusItems = nil
@@ -66,7 +73,8 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	local frameCounters
 	local trackerUpdater = TrackerUpdater(settings)
 	local seedLogger
-	local previousBackgroundColor
+	local tourneyTracker
+	local pokemonThemeManager = PokemonThemeManager(settings, self)
 
 	local currentScreens = {}
 
@@ -78,8 +86,32 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		return memoryAddresses
 	end
 
-	function self.saveSettings()
-		INI.save("Settings.ini", settings)
+	function self.openTourneyScoreBreakdown(previousScreen)
+		currentScreens = {}
+		self.UI_SCREEN_OBJECTS[self.UI_SCREENS.TOURNEY_TRACKER_SCREEN].setUpScoreBreakdown(tourneyTracker, previousScreen)
+		self.drawCurrentScreens()
+	end
+
+	function self.saveSettings(useDefaultTheme)
+		pokemonThemeManager.update()
+		if useDefaultTheme == nil then
+			useDefaultTheme = true
+		end
+		local settingsCopy = MiscUtils.deepCopy(settings)
+		if useDefaultTheme then
+			local defaultColorStuff = pokemonThemeManager.getDefaults()
+			if defaultColorStuff.colorSettings ~= nil then
+				settingsCopy.colorSettings = defaultColorStuff.colorSettings
+			end
+			if defaultColorStuff.colorScheme ~= nil then
+				settingsCopy.colorScheme = defaultColorStuff.colorScheme
+			end
+		end
+		INI.save("Settings.ini", settingsCopy)
+	end
+
+	function self.saveSettingsWithTheme()
+		self.saveSettings(false)
 	end
 
 	local function checkIfNeedToInitialize(screen)
@@ -112,7 +144,9 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		if currentScreens[self.UI_SCREENS.TITLE_SCREEN] then
 			return
 		end
-		if newScreen == self.UI_SCREENS.MAIN_SCREEN and tracker.getFirstPokemonID() == nil and settings.appearance.RANDOM_BALL_PICKER then
+		if
+			newScreen == self.UI_SCREENS.MAIN_SCREEN and tracker.getFirstPokemonID() == nil and settings.appearance.RANDOM_BALL_PICKER
+		 then
 			self.setCurrentScreens {newScreen, self.UI_SCREENS.RANDOM_BALL_SCREEN}
 			currentScreens[self.UI_SCREENS.MAIN_SCREEN].setRandomBallPickerActive(true)
 			currentScreens[self.UI_SCREENS.MAIN_SCREEN].show()
@@ -124,7 +158,7 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	end
 
 	local function checkForTitleScreen(newScreen)
-		local tryingToOpenMain =  newScreen == self.UI_SCREENS.MAIN_SCREEN and not doneWithTitleScreen
+		local tryingToOpenMain = newScreen == self.UI_SCREENS.MAIN_SCREEN and not doneWithTitleScreen
 		if newScreen == self.UI_SCREENS.TITLE_SCREEN or tryingToOpenMain then
 			self.setCurrentScreens({self.UI_SCREENS.MAIN_SCREEN, self.UI_SCREENS.TITLE_SCREEN})
 			--show the main screen once so the position recalculates itself
@@ -133,6 +167,16 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 			currentScreens[self.UI_SCREENS.TITLE_SCREEN].moveMainFrame(mainScreenPosition)
 			currentScreens[self.UI_SCREENS.TITLE_SCREEN].initialize(seedLogger)
 		end
+	end
+
+	function self.turnOffPokemonTheme()
+		pokemonThemeManager.turnOff()
+	end
+
+	function self.togglePokemonTheme()
+		pokemonThemeManager.toggleActive()
+		self.saveSettings(true)
+		self.drawCurrentScreens()
 	end
 
 	function self.openScreen(screen)
@@ -164,7 +208,9 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		UPDATE_NOTES_SCREEN = 16,
 		RANDOM_BALL_SCREEN = 17,
 		TITLE_SCREEN = 18,
-		RESTORE_POINTS_SCREEN = 19
+		RESTORE_POINTS_SCREEN = 19,
+		TOURNEY_TRACKER_SCREEN = 20,
+		EXTRAS_SCREEN = 21
 	}
 
 	self.UI_SCREEN_OBJECTS = {
@@ -186,9 +232,21 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		[self.UI_SCREENS.RUN_OVER_SCREEN] = RunOverScreen(settings, tracker, self),
 		[self.UI_SCREENS.UPDATE_NOTES_SCREEN] = UpdateNotesScreen(settings, tracker, self),
 		[self.UI_SCREENS.RANDOM_BALL_SCREEN] = RandomBallScreen(settings, tracker, self),
-		[self.UI_SCREENS.TITLE_SCREEN] = TitleScreen(settings,tracker,self),
-		[self.UI_SCREENS.RESTORE_POINTS_SCREEN] = RestorePointsScreen(settings,tracker,self)
+		[self.UI_SCREENS.TITLE_SCREEN] = TitleScreen(settings, tracker, self),
+		[self.UI_SCREENS.RESTORE_POINTS_SCREEN] = RestorePointsScreen(settings, tracker, self),
+		[self.UI_SCREENS.TOURNEY_TRACKER_SCREEN] = TourneyTrackerScreen(settings, tracker, self),
+		[self.UI_SCREENS.EXTRAS_SCREEN] = ExtrasScreen(settings, tracker, self)
 	}
+
+	tourneyTracker =
+		TourneyTracker(
+		tracker,
+		settings,
+		self.UI_SCREEN_OBJECTS[self.UI_SCREENS.TOURNEY_TRACKER_SCREEN],
+		self.UI_SCREEN_OBJECTS[self.UI_SCREENS.MAIN_SCREEN]
+	)
+
+	self.UI_SCREEN_OBJECTS[self.UI_SCREENS.EXTRAS_SCREEN].injectExtraRelatedClasses(tourneyTracker)
 
 	local function getScreenTotal()
 		local total = 0
@@ -288,6 +346,9 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 			return
 		end
 		if playerPokemon == nil or enemyPokemon == nil then
+			return
+		end
+		if not MiscUtils.validPokemonData(playerPokemon) or not MiscUtils.validPokemonData(enemyPokemon) then
 			return
 		end
 		local location = tracker.getCurrentAreaName()
@@ -454,6 +515,7 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 			areaName = locationData[parentMap].name
 		end
 		if areaName ~= nil and areaName ~= locationData[0].name then
+			currentMapID = parentMap
 			tracker.updateCurrentAreaName(areaName)
 			if currentScreens[self.UI_SCREENS.TITLE_SCREEN] then
 				if gameInfo.NAME == "Pokemon Platinum" and childMap == 104 then
@@ -464,11 +526,11 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 				end
 			end
 		end
-		return areaName
+		currentLocation = areaName
 	end
 
 	function self.getCurrentLocation()
-		return updateLocation()
+		return currentLocation
 	end
 
 	function self.isWildBattle()
@@ -500,9 +562,13 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 			self.setCurrentScreens({self.UI_SCREENS.MAIN_SCREEN})
 			self.UI_SCREEN_OBJECTS[self.UI_SCREENS.MAIN_SCREEN].setRandomBallPickerActive(false)
 		end
+		if playerPokemon ~= nil then
+			pokemonThemeManager.update(playerPokemon.pokemonID)
+		end
 		if beforeFirstPokemon or afterFirstPokemon or inThemeView then
 			self.drawCurrentScreens()
 		end
+		tourneyTracker.updateMilestones(battleHandler.getDefeatedTrainers(), currentMapID)
 	end
 
 	function self.openUpdaterScreen()
@@ -600,6 +666,24 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		return locked
 	end
 
+	local function resetMainScreenHover()
+		if self.UI_SCREEN_OBJECTS[self.UI_SCREENS.MAIN_SCREEN] then
+			self.UI_SCREEN_OBJECTS[self.UI_SCREENS.MAIN_SCREEN].resetHoverFrame()
+			self.drawCurrentScreens()
+		end
+	end
+
+	function self.switchToEnemy()
+		if not settings.battle["AUTO_SWAP_TO_ENEMY"] then
+			return
+		end
+		if not inTrackedPokemonView or inLockedView then
+			selectedPlayer = self.SELECTED_PLAYERS.ENEMY
+			setPokemonForMainScreen()
+			resetMainScreenHover()
+		end
+	end
+
 	local function switchPokemonView()
 		if not inTrackedPokemonView or inLockedView then
 			if battleHandler.inBattleAndFetched() or (locked and lockedPokemonCopy ~= nil) then
@@ -612,10 +696,8 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 						selectedPlayer = battleHandler.updateEnemySlotIndex(selectedPlayer)
 					end
 				end
-				if self.UI_SCREEN_OBJECTS[self.UI_SCREENS.MAIN_SCREEN] then
-					self.UI_SCREEN_OBJECTS[self.UI_SCREENS.MAIN_SCREEN].resetHoverFrame()
-					readMemory()
-				end
+				readMemory()
+				resetMainScreenHover()
 			end
 		end
 	end
@@ -669,11 +751,10 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		if currentScreens[self.UI_SCREENS.MAIN_SCREEN] and total == 1 then
 			client.SetGameExtraPadding(0, 0, Graphics.SIZES.MAIN_SCREEN_PADDING, 0)
 		end
+		self.UI_SCREEN_OBJECTS[self.UI_SCREENS.TOURNEY_TRACKER_SCREEN].show()
 		for _, screen in pairs(currentScreens) do
 			screen.show()
 		end
-		--self.UI_SCREEN_OBJECTS[self.UI_SCREENS.MAIN_SCREEN].show()
-		--self.UI_SCREEN_OBJECTS[self.UI_SCREENS._SCREEN].show()
 	end
 
 	function self.isInBattle()
@@ -723,6 +804,21 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		else
 			badges.firstSet = readBadgeByte(memoryAddresses.badges)
 		end
+		if gameInfo.NAME == "Pokemon Black 2" or gameInfo.NAME == "Pokemon White 2" then
+			local sum = 0
+			for _, badge in pairs(badges.firstSet) do
+				sum = sum + badge
+			end
+			--very hacky
+			if not displayedBW2Error and sum == 8 and playerPokemon.pokemonID == 0 then
+				displayedBW2Error = true
+				FormsUtils.displayError(
+					"It looks like you don't have an intro patched version of " ..
+						gameInfo.NAME ..
+							". The tracker will not work without this, and you can grab it from the official IronMON Discord. Best of luck!"
+				)
+			end
+		end
 		if not inPastRunView then
 			self.UI_SCREEN_OBJECTS[self.UI_SCREENS.MAIN_SCREEN].updateBadges(badges)
 		end
@@ -746,7 +842,7 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 			end,
 			nil,
 			true
-		),
+		)
 	}
 
 	function self.pauseEventListeners()
@@ -798,6 +894,7 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		local onTitle = currentScreens[self.UI_SCREENS.TITLE_SCREEN] ~= nil
 		self.UI_SCREEN_OBJECTS[self.UI_SCREENS.MAIN_SCREEN].setRunEventListeners(not onTitle)
 		if runEvents then
+			self.UI_SCREEN_OBJECTS[self.UI_SCREENS.TOURNEY_TRACKER_SCREEN].runEventListeners()
 			for _, eventListener in pairs(eventListeners) do
 				eventListener.listen()
 			end
@@ -851,7 +948,7 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	end
 
 	pokemonDataReader = PokemonDataReader(self)
-	battleHandler = BattleHandler(gameInfo, memoryAddresses, pokemonDataReader, tracker, self, settings)
+	battleHandler = BattleHandler(gameInfo, memoryAddresses, pokemonDataReader, tracker, self, settings, tourneyTracker)
 	seedLogger = SeedLogger(self, gameInfo.NAME)
 	playerPokemon = pokemonDataReader.getDefaultPokemon()
 	setPokemonForMainScreen()

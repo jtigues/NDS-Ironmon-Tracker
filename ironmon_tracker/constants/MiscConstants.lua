@@ -1,11 +1,13 @@
 MiscConstants = {}
 
-MiscConstants.TRACKER_VERSION = "5.5.8"
+MiscConstants.TRACKER_VERSION = "5.7.2"
 
 MiscConstants.BIZHAWK_VERSION = client.getversion()
 
 MiscConstants.UPDATE_NOTES = {
-    '-- Added a button under "Tracked Info" to load someone else\'s tracker data for sharing purposes.'
+    "-- Fixes important bugs related to the evo data feature.",
+    "-- 5.7.0: Clicking on the level/evo label will now show brdy and Harkenn's evolution data if your Pok" ..
+        Chars.accentedE .. "mon evolves. Massive thank you to both of these people!"
 }
 
 MiscConstants.DEFAULT_SETTINGS = {
@@ -78,7 +80,8 @@ MiscConstants.DEFAULT_SETTINGS = {
         UPDATE_WAS_DONE = true
     },
     trackedInfo = {
-        FAINT_DETECTION = PlaythroughConstants.FAINT_DETECTIONS.ON_FIRST_SLOT_FAINT
+        FAINT_DETECTION = PlaythroughConstants.FAINT_DETECTIONS.ON_FIRST_SLOT_FAINT,
+        FIRST_TIME_BW2 = true
     },
     extras = {
         BROWS_ENABLED = false,

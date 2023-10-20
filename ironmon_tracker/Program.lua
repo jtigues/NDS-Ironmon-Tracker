@@ -23,6 +23,7 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	local RestorePointsScreen = dofile(Paths.FOLDERS.UI_FOLDER .. "/RestorePointsScreen.lua")
 	local TourneyTrackerScreen = dofile(Paths.FOLDERS.UI_FOLDER .. "/TourneyTrackerScreen.lua")
 	local ExtrasScreen = dofile(Paths.FOLDERS.UI_FOLDER .. "/ExtrasScreen.lua")
+	local EvoDataScreen = dofile(Paths.FOLDERS.UI_FOLDER .. "/EvoDataScreen.lua")
 
 	local INI = dofile(Paths.FOLDERS.DATA_FOLDER .. "/Inifile.lua")
 	local PokemonDataReader = dofile(Paths.FOLDERS.DATA_FOLDER .. "/PokemonDataReader.lua")
@@ -61,7 +62,6 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 	local healingItems = nil
 	local inTrackedPokemonView = false
 	local doneWithTitleScreen = false
-	local displayedBW2Error = false
 	local inPastRunView = false
 	local inLockedView = false
 	local statusItems = nil
@@ -114,6 +114,13 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		self.saveSettings(false)
 	end
 
+	function self.onEvoLabelClick()
+		if inPastRunView or inTrackedPokemonView or currentScreens[self.UI_SCREENS.LOG_VIEWER_SCREEN] or playerPokemon == nil then
+			return
+		end
+		self.openScreen(self.UI_SCREENS.EVO_DATA_SCREEN)
+	end
+
 	local function checkIfNeedToInitialize(screen)
 		local blankInitialization = {
 			[self.UI_SCREENS.QUICK_LOAD_SCREEN] = true,
@@ -125,10 +132,19 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 			[self.UI_SCREENS.PAST_RUNS_SCREEN] = true,
 			[self.UI_SCREENS.TITLE_SCREEN] = true
 		}
+		local currentPokemonInitialization = {
+			[self.UI_SCREENS.EVO_DATA_SCREEN] = true
+		}
 		if blankInitialization[screen] then
 			self.UI_SCREEN_OBJECTS[screen].initialize()
 		elseif seedLoggerInitialization[screen] then
 			self.UI_SCREEN_OBJECTS[screen].initialize(seedLogger)
+		elseif currentPokemonInitialization[screen] then
+			local currentPokemon = playerPokemon
+			if selectedPlayer == self.SELECTED_PLAYERS.ENEMY then
+				currentPokemon = enemyPokemon
+			end
+			self.UI_SCREEN_OBJECTS[screen].initialize(currentPokemon)
 		end
 	end
 
@@ -210,7 +226,8 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		TITLE_SCREEN = 18,
 		RESTORE_POINTS_SCREEN = 19,
 		TOURNEY_TRACKER_SCREEN = 20,
-		EXTRAS_SCREEN = 21
+		EXTRAS_SCREEN = 21,
+		EVO_DATA_SCREEN = 22
 	}
 
 	self.UI_SCREEN_OBJECTS = {
@@ -235,7 +252,8 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 		[self.UI_SCREENS.TITLE_SCREEN] = TitleScreen(settings, tracker, self),
 		[self.UI_SCREENS.RESTORE_POINTS_SCREEN] = RestorePointsScreen(settings, tracker, self),
 		[self.UI_SCREENS.TOURNEY_TRACKER_SCREEN] = TourneyTrackerScreen(settings, tracker, self),
-		[self.UI_SCREENS.EXTRAS_SCREEN] = ExtrasScreen(settings, tracker, self)
+		[self.UI_SCREENS.EXTRAS_SCREEN] = ExtrasScreen(settings, tracker, self),
+		[self.UI_SCREENS.EVO_DATA_SCREEN] = EvoDataScreen(settings, tracker, self)
 	}
 
 	tourneyTracker =
@@ -258,7 +276,7 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 
 	function self.addAdditionalDataToPokemon(pokemon)
 		local constData = PokemonData.POKEMON[pokemon.pokemonID + 1]
-		for key, data in pairs(constData) do
+		for key, data in pairs(constData or {}) do
 			--when tracker makes a template it does the name because alternate forms are complex, so don't overwrite it
 			if key == "name" then
 				if not pokemon.name then
@@ -803,21 +821,6 @@ local function Program(initialTracker, initialMemoryAddresses, initialGameInfo, 
 			badges.secondSet = readBadgeByte(memoryAddresses.kantoBadges)
 		else
 			badges.firstSet = readBadgeByte(memoryAddresses.badges)
-		end
-		if gameInfo.NAME == "Pokemon Black 2" or gameInfo.NAME == "Pokemon White 2" then
-			local sum = 0
-			for _, badge in pairs(badges.firstSet) do
-				sum = sum + badge
-			end
-			--very hacky
-			if not displayedBW2Error and sum == 8 and playerPokemon.pokemonID == 0 then
-				displayedBW2Error = true
-				FormsUtils.displayError(
-					"It looks like you don't have an intro patched version of " ..
-						gameInfo.NAME ..
-							". The tracker will not work without this, and you can grab it from the official IronMON Discord. Best of luck!"
-				)
-			end
 		end
 		if not inPastRunView then
 			self.UI_SCREEN_OBJECTS[self.UI_SCREENS.MAIN_SCREEN].updateBadges(badges)

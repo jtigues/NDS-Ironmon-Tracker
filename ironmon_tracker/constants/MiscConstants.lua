@@ -1,27 +1,17 @@
 MiscConstants = {}
 
-MiscConstants.TRACKER_VERSION = "6.0.1"
+MiscConstants.TRACKER_VERSION = "6.2.4"
 
 MiscConstants.BIZHAWK_VERSION = client.getversion()
 
 MiscConstants.UPDATE_NOTES = {
-    "-- 6.0.1: Fixed an important Bizhawk 2.8 related error. Sorry!",
-    "-- Double battles are now much more functional in Gen 4. Pok" ..
-        Chars.accentedE .. "mon will update correctly and you can now view your second mon in battle.",
-    "-- Under Battle Settings there is now a Doubles Mode option so that you can show your second Pok" ..
-        Chars.accentedE .. "mon outside of battle by pressing START.",
-    "-- In a double battle, pressing L/R while viewing your mon will show move effectiveness for the left and right enemy mons, respectively.",
-    "-- There is a new Pivots tab in the Log Viewer to see what you could have pivoted to in a run. The Stats tab is now just in the Pok" ..
-        Chars.accentedE .. "mon tab.",
-    "-- Added a simple animated icon set based on the HeartGold walking sprites.",
-    "-- Added a coverage calculator in the Extras section of the tracker settings.",
-    "-- Added an on-screen Repel indicator under Tracker Appearance that works similar to Gen 3.",
-    "-- Added a timer option under Tracker Appearance. Middle clicking will drag the timer wherever you want it, and clicking it will pause/unpause it.",
-    "-- Added a toggle under Tracker Appearance to show nicknames.",
-    "-- Favorites can now be changed at any time from the Tracker Setup screen.",
-    "-- Favorites will stay on screen until you pick your mon in the lab.",
-    "-- Mons with multiple evos such as Eevee will now let you cycle through them correctly when viewing potential evos.",
-    "-- Any hoverable thing on screen can be clicked to instantly show it."
+    "-- 6.2.4: Fixed an oversight related to bug catching tracking in HGSS.",
+    "-- Added Bug Catching Contest pivots to the log viewer for HGSS, as well as automatic encounter tracking for it like early routes.",
+    "-- Added automatic ability tracking in Gen 5. If any ability reveals when it shouldn't, let me know!",
+    "-- Overhauled Gen 5's battle code completely. Double and triple battles should now work without any issues.",
+    "-- Fixed stat stages not updating properly in Gen 4 double battles.",
+    "-- Added Super Kaizo tracker presets for Platinum and HGSS.",
+    "-- Rearranged the BW2 Virbank pivots in the log viewer so they refer to the more important interior sets of grass."
 }
 
 MiscConstants.DEFAULT_SETTINGS = {

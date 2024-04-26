@@ -44,7 +44,10 @@ MemoryAddresses[GameInfo.VERSION_NUMBER.HEART_GOLD] = {
         kantoBadges = 0x93,
         leagueBeaten = 0x1000,
         facingDirection = 0x25DA8,
-        repelSteps = 0x6919
+        repelSteps = 0x6919,
+        battleSubscriptMsgs = 0x47184,
+        abilityMessage = 0x471C8,
+        dayOfWeek = 0xDF4
     },
     GLOBAL = {
         battleStatus = 0x246F48
@@ -74,7 +77,9 @@ MemoryAddresses[GameInfo.VERSION_NUMBER.SOUL_SILVER] = {
         kantoBadges = 0x93,
         leagueBeaten = 0x1000,
         facingDirection = 0x25DA8,
-        repelSteps = 0x6919
+        repelSteps = 0x6919,
+        battleSubscriptMsgs = 0x47184,
+        dayOfWeek = 0xDF4
     },
     GLOBAL = {
         battleStatus = 0x246F48
@@ -102,7 +107,8 @@ MemoryAddresses[GameInfo.VERSION_NUMBER.PLATINUM] = {
         berryBagStartBattle = 0x4435C,
         badges = 0x96,
         facingDirection = 0x238A4,
-        repelSteps = 0x8087
+        repelSteps = 0x8087,
+        battleSubscriptMsgs = 0x44928
     },
     GLOBAL = {
         battleStatus = 0x24A55A
@@ -130,7 +136,8 @@ MemoryAddresses[GameInfo.VERSION_NUMBER.DIAMOND] = {
         berryBagStartBattle = 0x4550C,
         badges = 0x292,
         repelSteps = 0x764C,
-        facingDirection = 0x24A5C
+        facingDirection = 0x24A5C,
+        battleSubscriptMsgs = 0x458F0
     },
     GLOBAL = {
         battleStatus = 0x23BB38
@@ -158,7 +165,8 @@ MemoryAddresses[GameInfo.VERSION_NUMBER.PEARL] = {
         berryBagStartBattle = 0x4550C,
         badges = 0x292,
         repelSteps = 0x764C,
-        facingDirection = 0x24A5C
+        facingDirection = 0x24A5C,
+        battleSubscriptMsgs = 0x458F0
     },
     GLOBAL = {
         battleStatus = 0x23BB38
@@ -190,7 +198,10 @@ MemoryAddresses[GameInfo.VERSION_NUMBER.BLACK] = {
         badges = 0x23CDB0,
         repelSteps = 0x23D6DD,
         facingDirection = 0x2521FC,
-        mapNPCIDStart = 0x2521EC
+        mapNPCIDStart = 0x2521EC,
+        abilityTriggerStart = 0x2A6354,
+        mainBattleDataPtr = 0x269838,
+        doubleTripleFlag = 0x2A62F8
     }
 }
 
@@ -219,7 +230,10 @@ MemoryAddresses[GameInfo.VERSION_NUMBER.WHITE] = {
         badges = 0x23CDB0 + 0x20,
         repelSteps = 0x23D6DD + 0x20,
         facingDirection = 0x2521FC + 0x20,
-        mapNPCIDStart = 0x2521EC + 0x20
+        mapNPCIDStart = 0x2521EC + 0x20,
+        abilityTriggerStart = 0x2A6354 + 0x20,
+        mainBattleDataPtr = 0x269838 + 0x20,
+        doubleTripleFlag = 0x2A62F8 + 0x20
     }
 }
 
@@ -247,7 +261,10 @@ MemoryAddresses[GameInfo.VERSION_NUMBER.BLACK2] = {
         badges = 0x226728,
         repelSteps = 0x226F51,
         facingDirection = 0x23D9FC,
-        mapNPCIDStart = 0x23D9EC
+        mapNPCIDStart = 0x23D9EC,
+        abilityTriggerStart = 0x294E08,
+        mainBattleDataPtr = 0x2573AC,
+        doubleTripleFlag = 0x294DA4
     }
 }
 
@@ -275,7 +292,10 @@ MemoryAddresses[GameInfo.VERSION_NUMBER.WHITE2] = {
         badges = 0x226728 + 0x80,
         repelSteps = 0x226F51 + 0x80,
         facingDirection = 0x23D9FC + 0x80,
-        mapNPCIDStart = 0x23D9EC + 0x80
+        mapNPCIDStart = 0x23D9EC + 0x80,
+        abilityTriggerStart = 0x294E08 + 0x80,
+        mainBattleDataPtr = 0x2573AC + 0x80,
+        doubleTripleFlag = 0x294DA4 + 0x80
     }
 }
 
